@@ -1,6 +1,7 @@
 import requests
 import json
 from typing import List
+from indicators.calculate import Calculator
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -20,6 +21,8 @@ def get_data(symbol: str) -> dict:
 def calculate_indicators(data: dict) -> dict:
     # 計算技術指標（如均線、RSI 等），並返回指標數據
     indicators = {}
+    rsi = Calculator.calculate_rsi(data)
+    indicators["RSI"] = rsi
     return indicators
 
 def select_stocks(stock_list: List[str]) -> List[dict]:
