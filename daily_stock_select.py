@@ -11,7 +11,11 @@ API_KEY = read_access_token('access_token.txt')
 def get_data(symbol: str) -> dict:
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=compact&apikey={API_KEY}"
     r = requests.get(url)
-    return r.json()
+    try:
+        return r.json()
+    except json.JSONDecodeError as e:
+        print(f"Failed to get data for {symbol}: {e}")
+        return None
 
 def calculate_indicators(data: dict) -> dict:
     # 計算技術指標（如均線、RSI 等），並返回指標數據
@@ -41,7 +45,8 @@ def select_stocks(stock_list: List[str]) -> List[dict]:
     return top_stocks
 
 if __name__ == "__main__":
-    stock_list = ["AAPL", "IBM", "MSFT", "META", "AMZN"]  # 您可以在這裡添加更多股票
+    with open('voo_stock_list.txt', 'r') as f:
+        stock_list = json.load(f)
     top_stocks = select_stocks(stock_list)
     
     results = []
