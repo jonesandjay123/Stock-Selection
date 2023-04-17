@@ -1,0 +1,57 @@
+import requests
+import json
+from typing import List
+
+def read_access_token(file_name):
+    with open(file_name, 'r') as file:
+        return file.read().strip()
+
+API_KEY = read_access_token('access_token.txt')
+
+def get_data(symbol: str) -> dict:
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=compact&apikey={API_KEY}"
+    r = requests.get(url)
+    return r.json()
+
+def calculate_indicators(data: dict) -> dict:
+    # 計算技術指標（如均線、RSI 等），並返回指標數據
+    indicators = {}
+    return indicators
+
+def select_stocks(stock_list: List[str]) -> List[dict]:
+    selected_stocks = []
+    
+    for stock in stock_list:
+        data = get_data(stock)
+        indicators = calculate_indicators(data)
+        
+        # 在這裡，您可以根據技術指標的結果判斷是否符合您的策略
+        # 如果符合條件，則將股票添加到 selected_stocks 列表中
+
+        # 這裡只是一個示例，我們假設所有股票都符合策略
+        selected_stocks.append({
+            "symbol": stock,
+            "sell_price": 100,
+            "buy_price": 90
+        })
+        
+    # 根據您的策略對 selected_stocks 進行排序，然後返回前 15 名
+    top_stocks = selected_stocks[:15]
+    
+    return top_stocks
+
+if __name__ == "__main__":
+    stock_list = ["AAPL", "IBM", "MSFT", "META", "AMZN"]  # 您可以在這裡添加更多股票
+    top_stocks = select_stocks(stock_list)
+    
+    results = []
+    for idx, stock in enumerate(top_stocks):
+        result = {
+            "Ranking": idx + 1,
+            "Symbol": stock["symbol"],
+            "sell_price": stock["sell_price"],
+            "buy_price": stock["buy_price"]
+        }
+        results.append(result)
+    
+    print(json.dumps(results, indent=2))
