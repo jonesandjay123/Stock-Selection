@@ -2,6 +2,7 @@ import requests
 import json
 from typing import List
 from indicators.calculate import Calculator
+from tqdm import tqdm  # 導入 tqdm
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -10,10 +11,15 @@ def read_access_token(file_name):
 API_KEY = read_access_token('access_token.txt')
 
 def get_data(symbol: str) -> dict:
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=compact&apikey={API_KEY}"
+    interval = "60min"
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval}&outputsize=compact&apikey={API_KEY}"
     r = requests.get(url)
     try:
-        return r.json()
+        data = r.json()
+        if f"Time Series ({interval})" not in data:
+            print(f"Failed to get data for {symbol}: Time Series ({interval}) key not found")
+            return None
+        return data
     except json.JSONDecodeError as e:
         print(f"Failed to get data for {symbol}: {e}")
         return None
@@ -28,7 +34,7 @@ def calculate_indicators(data: dict) -> dict:
 def select_stocks(stock_list: List[str]) -> List[dict]:
     selected_stocks = []
     
-    for stock in stock_list:
+    for stock in tqdm(stock_list):  # 在迭代中使用 tqdm
         data = get_data(stock)
         indicators = calculate_indicators(data)
         
