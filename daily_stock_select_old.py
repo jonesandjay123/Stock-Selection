@@ -4,6 +4,7 @@ from typing import List
 from indicators.calculate import Calculator
 from tqdm import tqdm
 
+# https://docs.data.nasdaq.com/docs/in-depth-usage
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
         return file.read().strip()
