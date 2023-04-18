@@ -1,29 +1,18 @@
-import requests
+import nasdaqdatalink as ndl
+import pandas as pd
 
-# https://github.com/Nasdaq/data-link-python
+# 設定你的API金鑰
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
         return file.read().strip()
 
-# 替換 YOUR_API_KEY 為您的 API 密鑰
-api_key = read_access_token('access_token.txt')
+ndl.ApiConfig.api_key = API_KEY = read_access_token('access_token.txt')
 
-# 選擇股票代碼和數據集代碼
-stock_symbol = "AAPL"
-dataset_code = "WIKI"
+# 使用快速方法獲取股票數據
+data = ndl.get('WIKI/AAPL')
 
-# 創建 API 請求 URL
-url = f"https://data.nasdaq.com/api/v3/datatables/{dataset_code}/PRICES?ticker={stock_symbol}&api_key={api_key}"
-# print(url)
+# 將數據轉換為pandas DataFrame
+data_frame = pd.DataFrame(data)
 
-# 發送請求並獲取 JSON 數據
-response = requests.get(url)
-data = response.json()
-
-# 檢查並輸出數據
-if "datatable" in data and "data" in data["datatable"]:
-    stock_data = data["datatable"]["data"]
-    for daily_data in stock_data:
-        print(daily_data)
-else:
-    print("Error fetching data.")
+# 查看前5行數據
+print(data_frame.head())
