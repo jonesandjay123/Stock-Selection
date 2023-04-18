@@ -2,12 +2,13 @@ import pandas as pd
 import numpy as np
 
 class Calculator:
-    def calculate_rsi(data: dict, period: int = 14) -> float:
-        if "Time Series (60min)" not in data:
-            print("Error: Time Series (60min) key not found in data")
+    def calculate_rsi(stock_data: list, period: int = 14) -> float:
+        if not stock_data:
+            print("Error: Stock data is empty")
             return None
-        
-        close_prices = [float(value["4. close"]) for value in data["Time Series (60min)"].values()]
+
+        # Nasdaq Data API 中，收盤價位於每個條目的第五個元素（從 0 開始）
+        close_prices = [float(row[4]) for row in stock_data]
 
         deltas = np.diff(close_prices)
 
