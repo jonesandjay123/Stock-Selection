@@ -13,6 +13,7 @@ API_KEY = read_access_token('access_token.txt')
 def get_data(symbol: str) -> dict:
     interval = "60min"
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval}&outputsize=compact&apikey={API_KEY}"
+    print(f"url: {url}")
     r = requests.get(url)
     try:
         data = r.json()
@@ -25,6 +26,8 @@ def get_data(symbol: str) -> dict:
         return None
 
 def calculate_indicators(data: dict) -> dict:
+    if data is None:
+        return None
     # 計算技術指標（如均線、RSI 等），並返回指標數據
     indicators = {}
     rsi = Calculator.calculate_rsi(data)
@@ -38,6 +41,9 @@ def select_stocks(stock_list: List[str]) -> List[dict]:
         data = get_data(stock)
         indicators = calculate_indicators(data)
         
+        if indicators is None:
+            continue
+
         # 在這裡，您可以根據技術指標的結果判斷是否符合您的策略
         # 如果符合條件，則將股票添加到 selected_stocks 列表中
 
