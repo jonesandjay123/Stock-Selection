@@ -25,3 +25,18 @@ class Calculator:
             rsi_results[f"RSI_{period}"] = rsi
 
         return rsi_results
+    
+    
+    def calculate_sma(stock_data, periods):
+        if not stock_data:
+            print("Error: Stock data is empty")
+            return None
+
+        close_prices = pd.Series([float(row['adjClose']) for row in stock_data])
+
+        sma_results = {}
+        for period in periods:
+            sma = close_prices.rolling(window=period).mean().iloc[-1]
+            sma_results[f"SMA_{period}"] = sma
+
+        return sma_results

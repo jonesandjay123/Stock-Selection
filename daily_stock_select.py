@@ -7,11 +7,17 @@ from indicators.calculate import Calculator
 
 # https://api.tiingo.com/documentation/end-of-day
 N = 3  # 挑選前N名最直得投資的股票
-rsi_period = [5, 10, 14]  # 宣告RSI計算期限種類
-data_interval_days = max(rsi_period)  # 搜尋資料的天數範圍
+rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
+sma_periods = [5, 10, 20]  # 宣告SMA計算期限種類
 
-# 過濾大於data_interval_days的rsi_period
-rsi_period = [period for period in rsi_period if period <= data_interval_days]
+data_interval_days = max(max(rsi_periods), max(sma_periods), 5)  # 搜尋資料的天數範圍
+
+def filter_periods(periods, max_days):
+    return [period for period in periods if period <= max_days]
+
+# 過濾大於data_interval_days的rsi_periods和sma_periods
+rsi_periods = filter_periods(rsi_periods, data_interval_days)
+sma_periods = filter_periods(sma_periods, data_interval_days)
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -33,11 +39,12 @@ def calculate_indicators(data):
         return None
 
     # 在這裡計算您需要的技術指標
-    rsi = Calculator.calculate_rsi(data, rsi_period)
+    rsi = Calculator.calculate_rsi(data, rsi_periods)
+    sma = Calculator.calculate_sma(data, sma_periods)
 
     indicators = {
         **rsi,
-        # "SMA": sma,
+        **sma,
         # ...
     }
     return indicators
