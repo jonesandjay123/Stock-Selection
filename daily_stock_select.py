@@ -53,11 +53,13 @@ def calculate_indicators(data):
     rsi = Calculator.calculate_rsi(data, rsi_periods)
     sma = Calculator.calculate_sma(data, sma_periods)
     ema = Calculator.calculate_ema(data, ema_periods)
+    macd = Calculator.calculate_macd(data)
 
     indicators = {
         **rsi,
         **sma,
         **ema,
+        **macd,
     }
     return indicators
 
