@@ -39,3 +39,18 @@ class Calculator:
             sma_results[f"SMA_{period}"] = sma
 
         return sma_results
+    
+    def calculate_ema(stock_data, periods):
+        if not stock_data:
+            print("Error: Stock data is empty")
+            return None
+
+        close_prices = pd.Series([float(row['adjClose']) for row in stock_data])
+
+        ema_results = {}
+        for period in periods:
+            alpha = 2 / (period + 1)
+            ema = close_prices.ewm(alpha=alpha, adjust=False).mean().iloc[-1]
+            ema_results[f"EMA_{period}"] = ema
+
+        return ema_results

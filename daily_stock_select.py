@@ -9,6 +9,7 @@ from indicators.calculate import Calculator
 N = 3  # 挑選前N名最直得投資的股票
 rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
 sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
+ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
 
 def trading_days_to_actual_days(trading_days):
     weeks = trading_days / 5
@@ -23,6 +24,7 @@ def filter_periods(periods, max_days):
 # 過濾大於data_interval_days的rsi_periods和sma_periods
 rsi_periods = filter_periods(rsi_periods, data_interval_days)
 sma_periods = filter_periods(sma_periods, data_interval_days)
+ema_periods = filter_periods(ema_periods, data_interval_days)
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -46,11 +48,12 @@ def calculate_indicators(data):
     # 在這裡計算您需要的技術指標
     rsi = Calculator.calculate_rsi(data, rsi_periods)
     sma = Calculator.calculate_sma(data, sma_periods)
+    ema = Calculator.calculate_ema(data, ema_periods)
 
     indicators = {
         **rsi,
         **sma,
-        # ...
+        **ema,
     }
     return indicators
 
