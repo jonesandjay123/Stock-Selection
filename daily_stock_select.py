@@ -3,7 +3,9 @@ import datetime
 import pandas as pd
 import requests
 
-N = 3  # 宣告N的值
+
+# https://api.tiingo.com/documentation/end-of-day
+N = 3  # 挑選前N名最直得投資的股票
 interval_days = 5  # 宣告日期範圍
 
 def read_access_token(file_name):
