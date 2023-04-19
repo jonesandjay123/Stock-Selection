@@ -9,7 +9,7 @@ N = 15  # 宣告N的值
 def get_top_N_stocks(N):
     # 設定日期範圍（過去一年）
     end_date = datetime.date.today()
-    start_date = end_date - datetime.timedelta(days=365)
+    start_date = end_date - datetime.timedelta(days=10)
 
     # 可根據需要自定義股票清單
     stock_list = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', 'TSLA', 'IBM', 'NVDA', 'NFLX', 'BA']
@@ -19,6 +19,7 @@ def get_top_N_stocks(N):
     for stock_symbol in stock_list:
         # 獲取股票歷史數據
         stock_data = ndl.get(f'WIKI/{stock_symbol}', start_date=start_date, end_date=end_date)
+        print(stock_data)
         stock_df = pd.DataFrame(stock_data)
         # 計算平均收盤價
         average_close = stock_df['Close'].mean()
