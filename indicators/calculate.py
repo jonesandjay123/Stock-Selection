@@ -2,13 +2,12 @@ import pandas as pd
 import numpy as np
 
 class Calculator:
-    def calculate_rsi(stock_data: list, period: int = 14) -> float:
+    def calculate_rsi(stock_data, period):
         if not stock_data:
             print("Error: Stock data is empty")
             return None
 
-        # Nasdaq Data API 中，收盤價位於每個條目的第五個元素（從 0 開始）
-        close_prices = [float(row[4]) for row in stock_data]
+        close_prices = [float(row['adjClose']) for row in stock_data]
 
         deltas = np.diff(close_prices)
 

@@ -2,11 +2,13 @@ import json
 import datetime
 import pandas as pd
 import requests
+from indicators.calculate import Calculator
 
 
 # https://api.tiingo.com/documentation/end-of-day
 N = 3  # 挑選前N名最直得投資的股票
 interval_days = 5  # 宣告日期範圍
+rsi_period = 5  # 宣告RSI計算期限
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -28,10 +30,10 @@ def calculate_indicators(data):
         return None
 
     # 在這裡計算您需要的技術指標
-    # ...
+    rsi = Calculator.calculate_rsi(data, rsi_period)
 
     indicators = {
-        # "RSI": rsi,
+        "RSI": rsi,
         # "SMA": sma,
         # ...
     }
