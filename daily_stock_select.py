@@ -41,9 +41,9 @@ def get_stock_data(stock_symbol, start_date, end_date):
     indicators = calculate_indicators(stock_data)
 
     # 獲取前一個交易日的數據
-    last_day_data = stock_data[-1]
+    latest_date_data = stock_data[-1]
 
-    return stock_data, indicators, last_day_data
+    return stock_data, indicators, latest_date_data
 
 def calculate_indicators(data):
     if data is None:
@@ -77,7 +77,7 @@ def get_top_N_stocks(N):
 
     for stock_symbol in stock_list:
         # 獲取股票歷史數據
-        stock_data, indicators, last_day_data = get_stock_data(stock_symbol, start_date, end_date)
+        stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date)
         stock_df = pd.DataFrame(stock_data)
         
         # 計算平均收盤價
@@ -87,11 +87,19 @@ def get_top_N_stocks(N):
         average_volume = stock_df['adjVolume'].mean()
 
         # 計算買入價與賣出價
-        buy_price = average_close * 0.9
-        sell_price = average_close * 1.1
+        recommand_buy_price = average_close * 0.9
+        recommand_sell_price = average_close * 1.1
 
         # 將結果加入stock_results
-        stock_results.append({'symbol': stock_symbol, 'average_close': average_close, 'average_volume': average_volume, 'buy_price': buy_price, 'sell_price': sell_price, 'indicators': indicators, 'last_day_data': last_day_data})
+        stock_results.append({
+            'symbol': stock_symbol,
+            'latest_date_data': latest_date_data,
+            'average_close': average_close,
+            'average_volume': average_volume,
+            'recommand_buy_price': recommand_buy_price,
+            'recommand_sell_price': recommand_sell_price,
+            'indicators': indicators,
+        })
 
     # 根據平均交易量降序排序，取前N名
     top_N_stocks = sorted(stock_results, key=lambda x: x['average_volume'], reverse=True)[:N]
