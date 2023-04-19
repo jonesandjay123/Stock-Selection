@@ -10,7 +10,12 @@ N = 3  # 挑選前N名最直得投資的股票
 rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
 sma_periods = [5, 10, 20]  # 宣告SMA計算期限種類
 
-data_interval_days = max(max(rsi_periods), max(sma_periods), 5)  # 搜尋資料的天數範圍
+def trading_days_to_actual_days(trading_days):
+    weeks = trading_days / 5
+    actual_days = int(weeks * 7)
+    return actual_days
+
+data_interval_days = trading_days_to_actual_days(15)   # 搜尋資料的天數範圍
 
 def filter_periods(periods, max_days):
     return [period for period in periods if period <= max_days]

@@ -26,7 +26,6 @@ class Calculator:
 
         return rsi_results
     
-    
     def calculate_sma(stock_data, periods):
         if not stock_data:
             print("Error: Stock data is empty")
