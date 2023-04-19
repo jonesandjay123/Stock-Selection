@@ -52,24 +52,3 @@ class Calculator:
             ema_results[f"EMA_{period}"] = ema
 
         return ema_results
-    
-    @staticmethod
-    def calculate_macd(data, short_ema=12, long_ema=26, signal_ema=9):
-        if data is None or len(data) == 0:
-            return None
-
-        # 計算短期和長期EMA
-        short_term_ema = Calculator.calculate_ema(data, short_ema)
-        long_term_ema = Calculator.calculate_ema(data, long_ema)
-
-        # 計算MACD線
-        macd_line = {k: short_term_ema[k] - long_term_ema[k] for k in short_term_ema}
-
-        # 計算MACD信號線
-        macd_signal_line = Calculator.calculate_ema(list(macd_line.values()), signal_ema)
-        macd_signal_line = {f"Signal_{k}": v for k, v in zip(macd_line.keys(), macd_signal_line.values())}
-
-        # 計算MACD Histogram
-        macd_histogram = {f"Histogram_{k}": macd_line[k] - macd_signal_line[f"Signal_{k}"] for k in macd_line}
-
-        return {**macd_line, **macd_signal_line, **macd_histogram}
