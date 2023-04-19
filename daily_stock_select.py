@@ -7,8 +7,11 @@ from indicators.calculate import Calculator
 
 # https://api.tiingo.com/documentation/end-of-day
 N = 3  # 挑選前N名最直得投資的股票
-interval_days = 5  # 宣告日期範圍
-rsi_period = 5  # 宣告RSI計算期限
+rsi_period = [5, 10, 14]  # 宣告RSI計算期限種類
+data_interval_days = max(rsi_period)  # 搜尋資料的天數範圍
+
+# 過濾大於data_interval_days的rsi_period
+rsi_period = [period for period in rsi_period if period <= data_interval_days]
 
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
@@ -33,7 +36,7 @@ def calculate_indicators(data):
     rsi = Calculator.calculate_rsi(data, rsi_period)
 
     indicators = {
-        "RSI": rsi,
+        **rsi,
         # "SMA": sma,
         # ...
     }
@@ -42,11 +45,11 @@ def calculate_indicators(data):
 def get_top_N_stocks(N):
     # 設定日期範圍（過去一年）
     end_date = datetime.date.today()
-    start_date = end_date - datetime.timedelta(days=interval_days)
+    start_date = end_date - datetime.timedelta(data_interval_days)
 
     # 可根據需要自定義股票清單
     stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
-    # 讀取voo_stock_list.txt中的股票清單
+    # 讀取整個voo_stock_list.txt中的200支股票
     # with open('voo_stock_list.txt', 'r') as f:
     #     stock_list = json.load(f)
 
