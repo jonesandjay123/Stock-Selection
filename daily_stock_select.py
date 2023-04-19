@@ -8,14 +8,14 @@ from indicators.calculate import Calculator
 # https://api.tiingo.com/documentation/end-of-day
 N = 3  # 挑選前N名最直得投資的股票
 rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
-sma_periods = [5, 10, 20]  # 宣告SMA計算期限種類
+sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
 
 def trading_days_to_actual_days(trading_days):
     weeks = trading_days / 5
     actual_days = int(weeks * 7)
     return actual_days
 
-data_interval_days = trading_days_to_actual_days(15)   # 搜尋資料的天數範圍
+data_interval_days = trading_days_to_actual_days(200)   # 搜尋資料的天數範圍
 
 def filter_periods(periods, max_days):
     return [period for period in periods if period <= max_days]
@@ -60,7 +60,8 @@ def get_top_N_stocks(N):
     start_date = end_date - datetime.timedelta(data_interval_days)
 
     # 可根據需要自定義股票清單
-    stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
+    stock_list = ['AAPL', 'META', 'TSLA']
+    # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
     # 讀取整個voo_stock_list.txt中的200支股票
     # with open('voo_stock_list.txt', 'r') as f:
     #     stock_list = json.load(f)
