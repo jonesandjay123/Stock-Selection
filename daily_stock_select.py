@@ -41,6 +41,9 @@ def calculate_indicators(stock_data):
     # 計算 Bollinger Bands
     upper, middle, lower = talib.BBANDS(stock_data['adjClose'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
 
+    # 計算 OBV
+    obv = talib.OBV(stock_data['adjClose'], stock_data['adjVolume'])
+
     indicators = {
         **rsi,
         **sma,
@@ -50,7 +53,8 @@ def calculate_indicators(stock_data):
         'macdhist': macdhist,
         'bollinger_upper': upper,
         'bollinger_middle': middle,
-        'bollinger_lower': lower
+        'bollinger_lower': lower,
+        'obv': obv,
     }
     return indicators
 
