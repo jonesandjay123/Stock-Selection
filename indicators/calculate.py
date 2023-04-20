@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import talib
 
 class Calculator:
     def indicator(stock_data, indicator_func, periods, prefix):

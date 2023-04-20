@@ -3,51 +3,25 @@ import datetime
 import os
 import pandas as pd
 import requests
-import shutil
 import talib
 from indicators.calculate import Calculator
+from tool.helper import Helper  
 from tqdm import tqdm
 
-
 # https://api.tiingo.com/documentation/end-of-day
+API_KEY = Helper.read_access_token('access_token.txt')
 N = 3  # 挑選前N名最直得投資的股票
 rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
 sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
 ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
 
-def trading_days_to_actual_days(trading_days):
-    weeks = trading_days / 5
-    actual_days = int(weeks * 7)
-    return actual_days
-
-data_interval_days = trading_days_to_actual_days(200)   # 搜尋資料的天數範圍
-
-def filter_periods(periods, max_days):
-    return [period for period in periods if period <= max_days]
+data_interval_days = Helper.trading_days_to_actual_days(200)   # 搜尋資料的天數範圍
 
 # 過濾大於data_interval_days的rsi_periods和sma_periods
-rsi_periods = filter_periods(rsi_periods, data_interval_days)
-sma_periods = filter_periods(sma_periods, data_interval_days)
-ema_periods = filter_periods(ema_periods, data_interval_days)
-
-def read_access_token(file_name):
-    with open(file_name, 'r') as file:
-        return file.read().strip()
+rsi_periods = Helper.filter_periods(rsi_periods, data_interval_days)
+sma_periods = Helper.filter_periods(sma_periods, data_interval_days)
+ema_periods = Helper.filter_periods(ema_periods, data_interval_days)
     
-def clean_old_csv_folders():
-    current_date = datetime.date.today().strftime('%Y-%m-%d')
-    for folder in os.listdir():
-        if folder.endswith('_csv') and not folder.startswith(current_date):
-            shutil.rmtree(folder)
-
-def prepare_cache_folder():
-    cache_folder_name = f"{datetime.date.today()}_csv"
-    if not os.path.exists(cache_folder_name):
-        os.makedirs(cache_folder_name)
-    return cache_folder_name
-
-API_KEY = read_access_token('access_token.txt')
-
 def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
     cache_file_path = os.path.join(cache_folder_name, f"{stock_symbol}.csv")
 
@@ -62,10 +36,7 @@ def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
         stock_df.to_csv(cache_file_path, index=False)
 
     indicators = calculate_indicators(stock_data)
-
-    # 獲取前一個交易日的數據
-    latest_date_data = stock_data[-1]
-
+    latest_date_data = stock_data[-1] # 獲取前一個交易日的數據
     return stock_data, indicators, latest_date_data
 
 def calculate_indicators(stock_data):
@@ -92,9 +63,8 @@ def calculate_indicators(stock_data):
     return indicators
 
 def get_top_N_stocks(N, cache_folder_name):
-    # 設定日期範圍（過去一年）
-    end_date = datetime.date.today()
-    start_date = end_date - datetime.timedelta(data_interval_days)
+    end_date = datetime.date.today() # 獲取當前日期
+    start_date = end_date - datetime.timedelta(data_interval_days) # 獲取前data_interval_days天的日期
 
     # 可根據需要自定義股票清單
     stock_list = ['AAPL', 'META', 'TSLA']
@@ -110,11 +80,8 @@ def get_top_N_stocks(N, cache_folder_name):
         stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date, cache_folder_name)
         stock_df = pd.DataFrame(stock_data)
         
-        # 計算平均收盤價
-        average_close = stock_df['adjClose'].mean()
-
-        # 計算平均交易量
-        average_volume = stock_df['adjVolume'].mean()
+        average_close = stock_df['adjClose'].mean() # 計算平均收盤價
+        average_volume = stock_df['adjVolume'].mean() # 計算平均交易量
 
         # 計算買入價與賣出價
         recommand_buy_price = average_close * 0.9
@@ -137,8 +104,8 @@ def get_top_N_stocks(N, cache_folder_name):
     return top_N_stocks
 
 def main():
-    clean_old_csv_folders() # 清理舊的CSV資料夾
-    cache_folder_name = prepare_cache_folder() # 準備緩存資料夾
+    Helper.clean_old_csv_folders() # 清理舊的CSV資料夾
+    cache_folder_name = Helper.prepare_cache_folder() # 準備緩存資料夾
     top_N_stocks = get_top_N_stocks(N, cache_folder_name) # 取得前N名股票
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
