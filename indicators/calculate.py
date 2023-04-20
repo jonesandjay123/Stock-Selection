@@ -62,13 +62,14 @@ class Calculator:
         if not stock_data:
             print("Error: Stock data is empty")
             return None
-        
+
         ema_12 = Calculator.calculate_ema(stock_data, [12])
         ema_26 = Calculator.calculate_ema(stock_data, [26])
         macd_line = ema_12['EMA_12'] - ema_26['EMA_26']
-        signal_line = Calculator.calculate_ema(stock_data, [9], macd_line)
+        macd_line_series = pd.Series(macd_line)
+        signal_line = Calculator.calculate_ema(stock_data, [9], source_data=macd_line_series)
         histogram = macd_line - signal_line['EMA_9']
-        
+
         return {
             'MACD_Line': macd_line,
             'MACD_Signal': signal_line['EMA_9'],
