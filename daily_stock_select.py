@@ -38,13 +38,19 @@ def calculate_indicators(stock_data):
     ema = Calculator.indicator(stock_data, talib.EMA, ema_periods, "ema")
     macd, macdsignal, macdhist = talib.MACD(stock_data['adjClose'], fastperiod=12, slowperiod=26, signalperiod=9)
 
+    # 計算 Bollinger Bands
+    upper, middle, lower = talib.BBANDS(stock_data['adjClose'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+
     indicators = {
         **rsi,
         **sma,
         **ema,
         'macd': macd,
         'macdsignal': macdsignal,
-        'macdhist': macdhist
+        'macdhist': macdhist,
+        'bollinger_upper': upper,
+        'bollinger_middle': middle,
+        'bollinger_lower': lower
     }
     return indicators
 
