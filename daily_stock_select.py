@@ -8,20 +8,6 @@ from indicators.calculate import Calculator
 from tool.helper import Helper  
 from tqdm import tqdm
 
-# https://api.tiingo.com/documentation/end-of-day
-API_KEY = Helper.read_access_token('access_token.txt')
-N = 3  # 挑選前N名最直得投資的股票
-rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
-sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
-ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
-
-data_interval_days = Helper.trading_days_to_actual_days(200)   # 搜尋資料的天數範圍
-
-# 過濾大於data_interval_days的rsi_periods和sma_periods
-rsi_periods = Helper.filter_periods(rsi_periods, data_interval_days)
-sma_periods = Helper.filter_periods(sma_periods, data_interval_days)
-ema_periods = Helper.filter_periods(ema_periods, data_interval_days)
-    
 def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
     cache_file_path = os.path.join(cache_folder_name, f"{stock_symbol}.csv")
 
@@ -62,16 +48,9 @@ def calculate_indicators(stock_data):
     }
     return indicators
 
-def get_top_N_stocks(N, cache_folder_name):
+def get_top_N_stocks(stock_list, N, cache_folder_name):
     end_date = datetime.date.today() # 獲取當前日期
     start_date = end_date - datetime.timedelta(data_interval_days) # 獲取前data_interval_days天的日期
-
-    # 可根據需要自定義股票清單
-    stock_list = ['AAPL', 'META', 'TSLA']
-    # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
-    # 讀取整個voo_stock_list.txt中的200支股票
-    # with open('voo_stock_list.txt', 'r') as f:
-    #     stock_list = json.load(f)
 
     stock_results = []
 
@@ -106,11 +85,26 @@ def get_top_N_stocks(N, cache_folder_name):
 def main():
     Helper.clean_old_csv_folders() # 清理舊的CSV資料夾
     cache_folder_name = Helper.prepare_cache_folder() # 準備緩存資料夾
-    top_N_stocks = get_top_N_stocks(N, cache_folder_name) # 取得前N名股票
+    top_N_stocks = get_top_N_stocks(stock_list, N, cache_folder_name) # 取得前N名股票
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
     print(top_N_stocks_json)
 
 if __name__ == "__main__":
+    # https://api.tiingo.com/documentation/end-of-day
+    API_KEY = Helper.read_access_token('access_token.txt')
+    # 可根據需要自定義股票清單
+    # stock_list = Helper.load_stock_list('voo_stock_list.txt') # 讀取整個voo_stock_list.txt中的200支股票
+    # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
+    stock_list = ['AAPL', 'META', 'TSLA']
+
+    N = 3  # 挑選前N名最直得投資的股票
+    rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
+    sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
+    ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
+    data_interval_days = Helper.trading_days_to_actual_days(200)   # 搜尋資料的天數範圍
+    rsi_periods = Helper.filter_periods(rsi_periods, data_interval_days)
+    sma_periods = Helper.filter_periods(sma_periods, data_interval_days)
+    ema_periods = Helper.filter_periods(ema_periods, data_interval_days)
     main()
