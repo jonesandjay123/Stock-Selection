@@ -68,13 +68,16 @@ def get_stock_data(stock_symbol, start_date, end_date):
     return stock_data, indicators, latest_date_data
 
 def calculate_indicators(stock_data):
-    if stock_data.empty:
+    if stock_data is None:
         return None
 
+    # 將股票數據轉換為 Pandas DataFrame
+    stock_data = pd.DataFrame(stock_data)
+
     # 在這裡計算您需要的技術指標
-    rsi = Calculator.indicator(stock_data, 'rsi', rsi_periods)
-    sma = Calculator.indicator(stock_data, 'sma', sma_periods)
-    ema = Calculator.indicator(stock_data, 'ema', ema_periods)
+    rsi = Calculator.indicator(stock_data, talib.RSI, rsi_periods, "rsi")
+    sma = Calculator.indicator(stock_data, talib.SMA, sma_periods, "sma")
+    ema = Calculator.indicator(stock_data, talib.EMA, ema_periods, "ema")
     macd, macdsignal, macdhist = talib.MACD(stock_data['adjClose'], fastperiod=12, slowperiod=26, signalperiod=9)
 
     indicators = {

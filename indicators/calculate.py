@@ -3,28 +3,17 @@ import numpy as np
 import talib
 
 class Calculator:
-    def indicator(stock_data, indicator_type, periods):
+    def indicator(stock_data, indicator_func, periods, prefix):
         if stock_data.empty:
             return {}
 
-        indicator_function_map = {
-            'rsi': talib.RSI,
-            'sma': talib.SMA,
-            'ema': talib.EMA,
-        }
-
-        if indicator_type not in indicator_function_map:
-            raise ValueError(f"Invalid indicator type: {indicator_type}")
-
-        indicator_function = indicator_function_map[indicator_type]
-        indicator_results = {}
-
+        results = {}
         for period in periods:
-            indicator_name = f'{indicator_type}{period}'
-            indicator = indicator_function(stock_data['adjClose'], timeperiod=period)
-            indicator_results[indicator_name] = indicator.iloc[-1]
+            name = f'{prefix}{period}'
+            indicator = indicator_func(stock_data['adjClose'], timeperiod=period)
+            results[name] = indicator.iloc[-1]
 
-        return indicator_results
+        return results
     
     def MACD(df, n_fast, n_slow, n_macd): # n_fast = 12, n_slow = 26, n_macd = 9
         EMAfast = df['Adj Close'].ewm(span=n_fast, min_periods=n_slow - 1).mean()
