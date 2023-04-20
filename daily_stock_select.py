@@ -1,8 +1,9 @@
 import json
 import datetime
+import os
 import pandas as pd
 import requests
-import os
+import shutil
 from indicators.calculate import Calculator
 from tqdm import tqdm
 
@@ -31,6 +32,12 @@ ema_periods = filter_periods(ema_periods, data_interval_days)
 def read_access_token(file_name):
     with open(file_name, 'r') as file:
         return file.read().strip()
+    
+def clean_old_csv_folders():
+    current_date = datetime.date.today().strftime('%Y-%m-%d')
+    for folder in os.listdir():
+        if folder.endswith('_csv') and not folder.startswith(current_date):
+            shutil.rmtree(folder)
 
 API_KEY = read_access_token('access_token.txt')
 
@@ -123,10 +130,9 @@ def get_top_N_stocks(N):
     return top_N_stocks
 
 def main():
-    top_N_stocks = get_top_N_stocks(N)
-
-    # 將結果轉為JSON格式
-    top_N_stocks_json = json.dumps(top_N_stocks, indent=2)
+    clean_old_csv_folders() # 清理舊的CSV資料夾
+    top_N_stocks = get_top_N_stocks(N) # 取得前N名股票
+    top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
     print(top_N_stocks_json)
