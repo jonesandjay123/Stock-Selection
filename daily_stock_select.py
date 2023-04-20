@@ -59,7 +59,7 @@ def calculate_indicators(data):
         **rsi,
         **sma,
         **ema,
-        # 'macd': macd,
+        **macd
     }
     return indicators
 
