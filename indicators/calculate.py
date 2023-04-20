@@ -3,41 +3,28 @@ import numpy as np
 import talib
 
 class Calculator:
-    def calculate_rsi(stock_data, rsi_periods):
+    def indicator(stock_data, indicator_type, periods):
         if stock_data.empty:
             return {}
 
-        rsi_results = {}
-        for period in rsi_periods:
-            rsi_name = f'rsi{period}'
-            rsi = talib.RSI(stock_data['adjClose'], timeperiod=period)
-            rsi_results[rsi_name] = rsi.iloc[-1]
+        indicator_function_map = {
+            'rsi': talib.RSI,
+            'sma': talib.SMA,
+            'ema': talib.EMA,
+        }
 
-        return rsi_results
-    
-    def calculate_sma(stock_data, sma_periods):
-        if stock_data.empty:
-            return {}
+        if indicator_type not in indicator_function_map:
+            raise ValueError(f"Invalid indicator type: {indicator_type}")
 
-        sma_results = {}
-        for period in sma_periods:
-            sma_name = f'sma{period}'
-            sma = talib.SMA(stock_data['adjClose'], timeperiod=period)
-            sma_results[sma_name] = sma.iloc[-1]
+        indicator_function = indicator_function_map[indicator_type]
+        indicator_results = {}
 
-        return sma_results
+        for period in periods:
+            indicator_name = f'{indicator_type}{period}'
+            indicator = indicator_function(stock_data['adjClose'], timeperiod=period)
+            indicator_results[indicator_name] = indicator.iloc[-1]
 
-    def calculate_ema(stock_data, ema_periods):
-        if stock_data.empty:
-            return {}
-
-        ema_results = {}
-        for period in ema_periods:
-            ema_name = f'ema{period}'
-            ema = talib.EMA(stock_data['adjClose'], timeperiod=period)
-            ema_results[ema_name] = ema.iloc[-1]
-
-        return ema_results
+        return indicator_results
     
     def MACD(df, n_fast, n_slow, n_macd): # n_fast = 12, n_slow = 26, n_macd = 9
         EMAfast = df['Adj Close'].ewm(span=n_fast, min_periods=n_slow - 1).mean()
