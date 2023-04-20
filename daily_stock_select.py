@@ -32,33 +32,41 @@ def calculate_indicators(stock_data):
     # 將股票數據轉換為 Pandas DataFrame
     stock_data = pd.DataFrame(stock_data)
 
-    # 在這裡計算您需要的技術指標
-    rsi = Calculator.indicator(stock_data, talib.RSI, rsi_periods, "rsi")
-    sma = Calculator.indicator(stock_data, talib.SMA, sma_periods, "sma")
-    ema = Calculator.indicator(stock_data, talib.EMA, ema_periods, "ema")
-    macd, macdsignal, macdhist = talib.MACD(stock_data['adjClose'], fastperiod=12, slowperiod=26, signalperiod=9)
+    # Calculate indicators
+    rsi_data = {}
+    for period in rsi_periods:
+        rsi_data[f"rsi_{period}"] = talib.RSI(stock_data["adjClose"], timeperiod=period)
 
-    # 計算 Bollinger Bands
-    upper, middle, lower = talib.BBANDS(stock_data['adjClose'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+    sma_data = {}
+    for period in sma_periods:
+        sma_data[f"sma_{period}"] = talib.SMA(stock_data["adjClose"], timeperiod=period)
 
-    # 計算 OBV
-    obv = talib.OBV(stock_data['adjClose'], stock_data['adjVolume'])
+    ema_data = {}
+    for period in ema_periods:
+        ema_data[f"ema_{period}"] = talib.EMA(stock_data["adjClose"], timeperiod=period)
+
+    macd, macdsignal, macdhist = talib.MACD(stock_data["adjClose"], fastperiod=12, slowperiod=26, signalperiod=9)
+
+    bb_upper, bb_middle, bb_lower = talib.BBANDS(stock_data["adjClose"], timeperiod=20)
+
+    obv = talib.OBV(stock_data["adjClose"], stock_data["adjVolume"])
 
     indicators = {
-        **rsi,
-        **sma,
-        **ema,
-        'macd': macd,
-        'macdsignal': macdsignal,
-        'macdhist': macdhist,
-        'bollinger_upper': upper,
-        'bollinger_middle': middle,
-        'bollinger_lower': lower,
-        'obv': obv,
+        **rsi_data,
+        **sma_data,
+        **ema_data,
+        "macd": macd,
+        "macdsignal": macdsignal,
+        "macdhist": macdhist,
+        "bollinger_upper": bb_upper,
+        "bollinger_middle": bb_middle,
+        "bollinger_lower": bb_lower,
+        "obv": obv
     }
+
     return indicators
 
-def get_top_N_stocks(stock_list, N, cache_folder_name):
+def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name):
     end_date = datetime.date.today() # 獲取當前日期
     start_date = end_date - datetime.timedelta(data_interval_days) # 獲取前data_interval_days天的日期
 
@@ -76,7 +84,7 @@ def get_top_N_stocks(stock_list, N, cache_folder_name):
         recommand_buy_price = average_close * 0.9
         recommand_sell_price = average_close * 1.1
 
-        # 將結果加入stock_results MACD 只保留最後5天的數據
+        # 將結果加入stock_results
         stock_results.append({
             'symbol': stock_symbol,
             'latest_date_data': latest_date_data,
@@ -84,7 +92,7 @@ def get_top_N_stocks(stock_list, N, cache_folder_name):
             'average_volume': average_volume,
             'recommand_buy_price': recommand_buy_price,
             'recommand_sell_price': recommand_sell_price,
-            'indicators': {k: v[-5:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()},
+            'indicators': {k: v[-indicator_display_amount:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()}, # 只顯示最近indicator_display_amount天的數據
         })
 
     # 根據平均交易量降序排序，取前N名
@@ -95,7 +103,7 @@ def get_top_N_stocks(stock_list, N, cache_folder_name):
 def main():
     Helper.clean_old_csv_folders() # 清理舊的CSV資料夾
     cache_folder_name = Helper.prepare_cache_folder() # 準備緩存資料夾
-    top_N_stocks = get_top_N_stocks(stock_list, N, cache_folder_name) # 取得前N名股票
+    top_N_stocks = get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name) # 取得前N名股票
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
@@ -110,6 +118,7 @@ if __name__ == "__main__":
     stock_list = ['AAPL', 'META', 'TSLA']
 
     N = 3  # 挑選前N名最直得投資的股票
+    indicator_display_amount = 5  # 顯示最近幾天的指標數據
     rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
     sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
     ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
