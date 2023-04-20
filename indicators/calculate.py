@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 class Calculator:
+    @staticmethod
     def indicator(stock_data, indicator_func, periods, prefix):
         if stock_data.empty:
             return {}
@@ -10,10 +11,11 @@ class Calculator:
         for period in periods:
             name = f'{prefix}_{period}'
             indicator = indicator_func(stock_data['adjClose'], timeperiod=period)
-            results[name] = indicator.iloc[-1]
+            results[name] = indicator
 
         return results
     
+    @staticmethod
     def MACD(df, n_fast, n_slow, n_macd): # n_fast = 12, n_slow = 26, n_macd = 9
         EMAfast = df['Adj Close'].ewm(span=n_fast, min_periods=n_slow - 1).mean()
         EMAslow = df['Adj Close'].ewm(span=n_slow, min_periods=n_slow - 1).mean()

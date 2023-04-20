@@ -32,23 +32,18 @@ def calculate_indicators(stock_data):
     # 將股票數據轉換為 Pandas DataFrame
     stock_data = pd.DataFrame(stock_data)
 
-    # Calculate indicators
-    rsi_data = {}
-    for period in rsi_periods:
-        rsi_data[f"rsi_{period}"] = talib.RSI(stock_data["adjClose"], timeperiod=period)
+    # 使用Calculator.indicator計算RSI(相對強弱指標）、SMA（簡單移動平均）和EMA（指數移動平均）
+    rsi_data = Calculator.indicator(stock_data, talib.RSI, rsi_periods, "rsi")
+    sma_data = Calculator.indicator(stock_data, talib.SMA, sma_periods, "sma")
+    ema_data = Calculator.indicator(stock_data, talib.EMA, ema_periods, "ema")
 
-    sma_data = {}
-    for period in sma_periods:
-        sma_data[f"sma_{period}"] = talib.SMA(stock_data["adjClose"], timeperiod=period)
-
-    ema_data = {}
-    for period in ema_periods:
-        ema_data[f"ema_{period}"] = talib.EMA(stock_data["adjClose"], timeperiod=period)
-
+    # MACD（移動平均匯差）：通常使用12日和26日的EMA進行計算，並用9日的EMA作為信號線。
     macd, macdsignal, macdhist = talib.MACD(stock_data["adjClose"], fastperiod=12, slowperiod=26, signalperiod=9)
 
+    # Bollinger Bands（布林帶）：通常使用20日的移動平均線作為中線，上下兩條線分別為中線的兩倍標準差。
     bb_upper, bb_middle, bb_lower = talib.BBANDS(stock_data["adjClose"], timeperiod=20)
 
+    # OBV（能量潮指標）：通過將股價上漲的交易量加總，股價下跌的交易量減總，來計算股價的能量。
     obv = talib.OBV(stock_data["adjClose"], stock_data["adjVolume"])
 
     indicators = {
