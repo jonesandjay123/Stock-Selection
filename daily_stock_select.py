@@ -40,21 +40,22 @@ def clean_old_csv_folders():
         if folder.endswith('_csv') and not folder.startswith(current_date):
             shutil.rmtree(folder)
 
-API_KEY = read_access_token('access_token.txt')
-
-def get_stock_data(stock_symbol, start_date, end_date):
-    headers = {'Content-Type': 'application/json'}
-    request_url = f"https://api.tiingo.com/tiingo/daily/{stock_symbol}/prices?startDate={start_date}&endDate={end_date}&token={API_KEY}"
-
+def prepare_cache_folder():
     cache_folder_name = f"{datetime.date.today()}_csv"
     if not os.path.exists(cache_folder_name):
         os.makedirs(cache_folder_name)
+    return cache_folder_name
 
+API_KEY = read_access_token('access_token.txt')
+
+def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
     cache_file_path = os.path.join(cache_folder_name, f"{stock_symbol}.csv")
 
     if os.path.exists(cache_file_path):
         stock_data = pd.read_csv(cache_file_path).to_dict('records')
     else:
+        headers = {'Content-Type': 'application/json'}
+        request_url = f"https://api.tiingo.com/tiingo/daily/{stock_symbol}/prices?startDate={start_date}&endDate={end_date}&token={API_KEY}"
         response = requests.get(request_url, headers=headers)
         stock_data = response.json()
         stock_df = pd.DataFrame(stock_data)
@@ -90,7 +91,7 @@ def calculate_indicators(stock_data):
     }
     return indicators
 
-def get_top_N_stocks(N):
+def get_top_N_stocks(N, cache_folder_name):
     # 設定日期範圍（過去一年）
     end_date = datetime.date.today()
     start_date = end_date - datetime.timedelta(data_interval_days)
@@ -106,7 +107,7 @@ def get_top_N_stocks(N):
 
     for stock_symbol in tqdm(stock_list, desc="Processing stocks"):
         # 獲取股票歷史數據
-        stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date)
+        stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date, cache_folder_name)
         stock_df = pd.DataFrame(stock_data)
         
         # 計算平均收盤價
@@ -137,7 +138,8 @@ def get_top_N_stocks(N):
 
 def main():
     clean_old_csv_folders() # 清理舊的CSV資料夾
-    top_N_stocks = get_top_N_stocks(N) # 取得前N名股票
+    cache_folder_name = prepare_cache_folder() # 準備緩存資料夾
+    top_N_stocks = get_top_N_stocks(N, cache_folder_name) # 取得前N名股票
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
