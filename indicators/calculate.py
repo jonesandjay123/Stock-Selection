@@ -1,77 +1,50 @@
 import pandas as pd
 import numpy as np
+import talib
 
 class Calculator:
-    def calculate_rsi(stock_data, periods):
-        if not stock_data:
-            print("Error: Stock data is empty")
-            return None
-
-        close_prices = [float(row['adjClose']) for row in stock_data]
-        deltas = np.diff(close_prices)
-
-        gains = deltas.copy()
-        gains[gains < 0] = 0
-        losses = -deltas.copy()
-        losses[losses < 0] = 0
+    def calculate_rsi(stock_data, rsi_periods):
+        if stock_data.empty:
+            return {}
 
         rsi_results = {}
-        for period in periods:
-            avg_gain = np.sum(gains[-period:]) / period
-            avg_loss = np.sum(losses[-period:]) / period
-
-            rs = avg_gain / avg_loss
-            rsi = 100 - (100 / (1 + rs))
-            rsi_results[f"RSI_{period}"] = rsi
+        for period in rsi_periods:
+            rsi_name = f'rsi{period}'
+            rsi = talib.RSI(stock_data['adjClose'], timeperiod=period)
+            rsi_results[rsi_name] = rsi.iloc[-1]
 
         return rsi_results
     
-    def calculate_sma(stock_data, periods):
-        if not stock_data:
-            print("Error: Stock data is empty")
-            return None
+    def calculate_sma(stock_data, sma_periods):
+        if stock_data.empty:
+            return {}
 
-        close_prices = pd.Series([float(row['adjClose']) for row in stock_data])
         sma_results = {}
-        for period in periods:
-            sma = close_prices.rolling(window=period).mean().iloc[-1]
-            sma_results[f"SMA_{period}"] = sma
+        for period in sma_periods:
+            sma_name = f'sma{period}'
+            sma = talib.SMA(stock_data['adjClose'], timeperiod=period)
+            sma_results[sma_name] = sma.iloc[-1]
 
         return sma_results
-    
-    def calculate_ema(stock_data, periods, source_data=None):
-        if not stock_data:
-            print("Error: Stock data is empty")
-            return None
 
-        # 使用傳入的 source_data 或者股票收盤價
-        if source_data is None:
-            data_series = pd.Series([float(row['adjClose']) for row in stock_data])
-        else:
-            data_series = pd.Series(source_data)
+    def calculate_ema(stock_data, ema_periods):
+        if stock_data.empty:
+            return {}
 
         ema_results = {}
-        for period in periods:
-            alpha = 2 / (period + 1)
-            ema = data_series.ewm(alpha=alpha, adjust=False).mean().iloc[-1]
-            ema_results[f"EMA_{period}"] = ema
+        for period in ema_periods:
+            ema_name = f'ema{period}'
+            ema = talib.EMA(stock_data['adjClose'], timeperiod=period)
+            ema_results[ema_name] = ema.iloc[-1]
 
         return ema_results
     
-    def calculate_macd(stock_data):
-        if not stock_data:
-            print("Error: Stock data is empty")
-            return None
-
-        ema_12 = Calculator.calculate_ema(stock_data, [12])
-        ema_26 = Calculator.calculate_ema(stock_data, [26])
-        macd_line = ema_12['EMA_12'] - ema_26['EMA_26']
-        macd_line_series = pd.Series([macd_line] * len(stock_data))
-        signal_line = Calculator.calculate_ema(stock_data, [9], source_data=macd_line_series)
-        histogram = macd_line - signal_line['EMA_9']
-
-        return {
-            'MACD_Line': macd_line,
-            'MACD_Signal': signal_line['EMA_9'],
-            'MACD_Histogram': histogram
-        }
+    def MACD(df, n_fast, n_slow, n_macd): # n_fast = 12, n_slow = 26, n_macd = 9
+        EMAfast = df['Adj Close'].ewm(span=n_fast, min_periods=n_slow - 1).mean()
+        EMAslow = df['Adj Close'].ewm(span=n_slow, min_periods=n_slow - 1).mean()
+        MACD = EMAfast - EMAslow
+        MACD_signal = MACD.ewm(span=n_macd, min_periods=n_macd-1).mean()
+        df['MACD'] = MACD
+        df['MACD_signal'] = MACD_signal
+        df['MACD_hist'] = MACD - MACD_signal
+        return df

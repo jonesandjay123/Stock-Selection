@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import requests
 import shutil
+import talib
 from indicators.calculate import Calculator
 from tqdm import tqdm
 
@@ -66,21 +67,26 @@ def get_stock_data(stock_symbol, start_date, end_date):
 
     return stock_data, indicators, latest_date_data
 
-def calculate_indicators(data):
-    if data is None:
+def calculate_indicators(stock_data):
+    if stock_data is None:
         return None
 
+    # 將股票數據轉換為 Pandas DataFrame
+    stock_data = pd.DataFrame(stock_data)
+
     # 在這裡計算您需要的技術指標
-    rsi = Calculator.calculate_rsi(data, rsi_periods)
-    sma = Calculator.calculate_sma(data, sma_periods)
-    ema = Calculator.calculate_ema(data, ema_periods)
-    macd = Calculator.calculate_macd(data)
+    rsi = Calculator.calculate_rsi(stock_data, rsi_periods)
+    sma = Calculator.calculate_sma(stock_data, sma_periods)
+    ema = Calculator.calculate_ema(stock_data, ema_periods)
+    macd, macdsignal, macdhist = talib.MACD(stock_data['adjClose'], fastperiod=12, slowperiod=26, signalperiod=9)
 
     indicators = {
         **rsi,
         **sma,
         **ema,
-        **macd
+        'macd': macd,
+        'macdsignal': macdsignal,
+        'macdhist': macdhist
     }
     return indicators
 
@@ -113,7 +119,7 @@ def get_top_N_stocks(N):
         recommand_buy_price = average_close * 0.9
         recommand_sell_price = average_close * 1.1
 
-        # 將結果加入stock_results
+        # 將結果加入stock_results MACD 只保留最後5天的數據
         stock_results.append({
             'symbol': stock_symbol,
             'latest_date_data': latest_date_data,
@@ -121,7 +127,7 @@ def get_top_N_stocks(N):
             'average_volume': average_volume,
             'recommand_buy_price': recommand_buy_price,
             'recommand_sell_price': recommand_sell_price,
-            'indicators': indicators,
+            'indicators': {k: v[-5:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()},
         })
 
     # 根據平均交易量降序排序，取前N名
