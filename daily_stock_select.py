@@ -2,7 +2,9 @@ import json
 import datetime
 import pandas as pd
 import requests
+import os
 from indicators.calculate import Calculator
+from tqdm import tqdm
 
 
 # https://api.tiingo.com/documentation/end-of-day
@@ -35,8 +37,20 @@ API_KEY = read_access_token('access_token.txt')
 def get_stock_data(stock_symbol, start_date, end_date):
     headers = {'Content-Type': 'application/json'}
     request_url = f"https://api.tiingo.com/tiingo/daily/{stock_symbol}/prices?startDate={start_date}&endDate={end_date}&token={API_KEY}"
-    response = requests.get(request_url, headers=headers)
-    stock_data = response.json()
+
+    cache_folder_name = f"{datetime.date.today()}_csv"
+    if not os.path.exists(cache_folder_name):
+        os.makedirs(cache_folder_name)
+
+    cache_file_path = os.path.join(cache_folder_name, f"{stock_symbol}.csv")
+
+    if os.path.exists(cache_file_path):
+        stock_data = pd.read_csv(cache_file_path).to_dict('records')
+    else:
+        response = requests.get(request_url, headers=headers)
+        stock_data = response.json()
+        stock_df = pd.DataFrame(stock_data)
+        stock_df.to_csv(cache_file_path, index=False)
 
     indicators = calculate_indicators(stock_data)
 
@@ -77,7 +91,7 @@ def get_top_N_stocks(N):
 
     stock_results = []
 
-    for stock_symbol in stock_list:
+    for stock_symbol in tqdm(stock_list, desc="Processing stocks"):
         # 獲取股票歷史數據
         stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date)
         stock_df = pd.DataFrame(stock_data)
