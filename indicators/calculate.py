@@ -66,7 +66,7 @@ class Calculator:
         ema_12 = Calculator.calculate_ema(stock_data, [12])
         ema_26 = Calculator.calculate_ema(stock_data, [26])
         macd_line = ema_12['EMA_12'] - ema_26['EMA_26']
-        macd_line_series = pd.Series(macd_line)
+        macd_line_series = pd.Series([macd_line] * len(stock_data))
         signal_line = Calculator.calculate_ema(stock_data, [9], source_data=macd_line_series)
         histogram = macd_line - signal_line['EMA_9']
 
