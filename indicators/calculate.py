@@ -9,7 +9,7 @@ class Calculator:
 
         results = {}
         for period in periods:
-            name = f'{prefix}{period}'
+            name = f'{prefix}_{period}'
             indicator = indicator_func(stock_data['adjClose'], timeperiod=period)
             results[name] = indicator.iloc[-1]
 
