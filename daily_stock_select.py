@@ -9,13 +9,19 @@ from tool.helper import Helper
 from tqdm import tqdm
 
 def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
+    # 儲存原始股票代號
+    original_stock_symbol = stock_symbol
+    
+    # 處理股票代號（例如，替換點）
+    stock_symbol = stock_symbol.replace(".", "_")
+    
     cache_file_path = os.path.join(cache_folder_name, f"{stock_symbol}.csv")
 
     if os.path.exists(cache_file_path):
         stock_data = pd.read_csv(cache_file_path).to_dict('records')
     else:
         headers = {'Content-Type': 'application/json'}
-        request_url = f"https://api.tiingo.com/tiingo/daily/{stock_symbol}/prices?startDate={start_date}&endDate={end_date}&token={API_KEY}"
+        request_url = f"https://api.tiingo.com/tiingo/daily/{original_stock_symbol}/prices?startDate={start_date}&endDate={end_date}&token={API_KEY}"
         response = requests.get(request_url, headers=headers)
         stock_data = response.json()
         stock_df = pd.DataFrame(stock_data)
@@ -68,27 +74,31 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
     stock_results = []
 
     for stock_symbol in tqdm(stock_list, desc="Processing stocks"):
-        # 獲取股票歷史數據
-        stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date, cache_folder_name)
-        stock_df = pd.DataFrame(stock_data)
-        
-        average_close = stock_df['adjClose'].mean() # 計算平均收盤價
-        average_volume = stock_df['adjVolume'].mean() # 計算平均交易量
+        try:
+            # 獲取股票歷史數據
+            stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date, cache_folder_name)
+            stock_df = pd.DataFrame(stock_data)
+            
+            average_close = stock_df['adjClose'].mean() # 計算平均收盤價
+            average_volume = stock_df['adjVolume'].mean() # 計算平均交易量
 
-        # 計算買入價與賣出價
-        recommand_buy_price = average_close * 0.9
-        recommand_sell_price = average_close * 1.1
+            # 計算買入價與賣出價
+            recommand_buy_price = average_close * 0.9
+            recommand_sell_price = average_close * 1.1
 
-        # 將結果加入stock_results
-        stock_results.append({
-            'symbol': stock_symbol,
-            'latest_date_data': latest_date_data,
-            'average_close': average_close,
-            'average_volume': average_volume,
-            'recommand_buy_price': recommand_buy_price,
-            'recommand_sell_price': recommand_sell_price,
-            'indicators': {k: v[-indicator_display_amount:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()}, # 只顯示最近indicator_display_amount天的數據
-        })
+            # 將結果加入stock_results
+            stock_results.append({
+                'symbol': stock_symbol,
+                'latest_date_data': latest_date_data,
+                'average_close': average_close,
+                'average_volume': average_volume,
+                'recommand_buy_price': recommand_buy_price,
+                'recommand_sell_price': recommand_sell_price,
+                'indicators': {k: v[-indicator_display_amount:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()}, # 只顯示最近indicator_display_amount天的數據
+            })
+        except Exception as e:
+            print(f"Error processing stock {stock_symbol}: {e}")
+            continue
 
         # 計算股票分數
     stock_scores = Calculator.calculate_stock_scores(stock_results)
