@@ -109,8 +109,8 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
         stock_result['score'] = stock_scores_dict[stock_result['symbol']]
 
 
-    # 根據平均交易量降序排序，取前N名
-    top_N_stocks = sorted(stock_results, key=lambda x: x['average_volume'], reverse=True)[:N]
+    # 根據score序排序，取前N名
+    top_N_stocks = sorted(stock_results, key=lambda x: x['score'], reverse=True)[:N]
 
     # Add ranking to each stock in top_N_stocks
     for index, stock in enumerate(top_N_stocks, start=1):
