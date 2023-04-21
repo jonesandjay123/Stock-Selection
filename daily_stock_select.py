@@ -125,19 +125,20 @@ def main():
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
-    # print(top_N_stocks_json) #完整版
-    simplified_top_N_stocks = [
-        {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
-        for stock in top_N_stocks
-    ]
-    print(json.dumps(simplified_top_N_stocks, indent=2))
+    # simplified_top_N_stocks = [
+    #     {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
+    #     for stock in top_N_stocks
+    # ]
+    # print(json.dumps(simplified_top_N_stocks, indent=2))
+    print(top_N_stocks_json) #完整版
 
 if __name__ == "__main__":
     # https://api.tiingo.com/documentation/end-of-day
     API_KEY = Helper.read_access_token('access_token.txt')
     # 可根據需要自定義股票清單
-    stock_list = Helper.load_stock_list('voo_stock_list.txt')[:50] # 讀取整個voo_stock_list.txt中的200支股票
+    # stock_list = Helper.load_stock_list('voo_stock_list.txt')[:50] # 讀取整個voo_stock_list.txt中的200支股票
     # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
+    stock_list = ['PM', 'AMZN', 'XOM', 'JNJ', 'HD']
     # stock_list = ['AAPL', 'META', 'TSLA']
 
     N = 20  # 挑選前N名最直得投資的股票
