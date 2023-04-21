@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from .order_dict import order_dict
 
 class Calculator:
     @staticmethod
@@ -71,7 +72,7 @@ class Calculator:
                 'score': score
             })
 
-        # Sort the stocks by their scores
-        stock_scores.sort(key=lambda x: x['score'], reverse=True)
+        # 根據分數排序，分數相同的話，根據 order_dict 的順序排序
+        stock_scores.sort(key=lambda x: (x['score'], order_dict[x['symbol']]), reverse=True)
 
         return stock_scores

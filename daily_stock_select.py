@@ -90,8 +90,21 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
             'indicators': {k: v[-indicator_display_amount:].tolist() if isinstance(v, pd.Series) else v for k, v in indicators.items()}, # 只顯示最近indicator_display_amount天的數據
         })
 
+        # 計算股票分數
+    stock_scores = Calculator.calculate_stock_scores(stock_results)
+    stock_scores_dict = {stock['symbol']: stock['score'] for stock in stock_scores}
+
+    # 將股票分數加入stock_results
+    for stock_result in stock_results:
+        stock_result['score'] = stock_scores_dict[stock_result['symbol']]
+
+
     # 根據平均交易量降序排序，取前N名
     top_N_stocks = sorted(stock_results, key=lambda x: x['average_volume'], reverse=True)[:N]
+
+    # Add ranking to each stock in top_N_stocks
+    for index, stock in enumerate(top_N_stocks, start=1):
+        stock['ranking'] = index
 
     return top_N_stocks
 
@@ -102,7 +115,12 @@ def main():
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
-    print(top_N_stocks_json)
+    # print(top_N_stocks_json) #完整版
+    simplified_top_N_stocks = [
+        {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
+        for stock in top_N_stocks
+    ]
+    print(json.dumps(simplified_top_N_stocks, indent=2))
 
 if __name__ == "__main__":
     # https://api.tiingo.com/documentation/end-of-day
