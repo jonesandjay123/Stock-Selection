@@ -140,7 +140,7 @@ if __name__ == "__main__":
     # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
     # stock_list = ['AAPL', 'META', 'TSLA']
 
-    N = 3  # 挑選前N名最直得投資的股票
+    N = 20  # 挑選前N名最直得投資的股票
     indicator_display_amount = 5  # 顯示最近幾天的指標數據
     rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
     sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
