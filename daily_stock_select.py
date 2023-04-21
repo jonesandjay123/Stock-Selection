@@ -126,9 +126,9 @@ if __name__ == "__main__":
     # https://api.tiingo.com/documentation/end-of-day
     API_KEY = Helper.read_access_token('access_token.txt')
     # 可根據需要自定義股票清單
-    # stock_list = Helper.load_stock_list('voo_stock_list.txt') # 讀取整個voo_stock_list.txt中的200支股票
+    stock_list = Helper.load_stock_list('voo_stock_list.txt')[:50] # 讀取整個voo_stock_list.txt中的200支股票
     # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
-    stock_list = ['AAPL', 'META', 'TSLA']
+    # stock_list = ['AAPL', 'META', 'TSLA']
 
     N = 3  # 挑選前N名最直得投資的股票
     indicator_display_amount = 5  # 顯示最近幾天的指標數據
