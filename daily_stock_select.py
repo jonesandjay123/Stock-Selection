@@ -42,11 +42,11 @@ def calculate_indicators(stock_data):
     indicators = {}
 
     # 新增：計算過去5天的平均交易量
-    volume_5 = stock_data['Volume'].rolling(window=5).mean()
+    volume_5 = stock_data['volume'].rolling(window=5).mean()
     indicators['volume_5'] = volume_5
 
     # 新增：計算過去20天的平均交易量
-    volume_20 = stock_data['Volume'].rolling(window=20).mean()
+    volume_20 = stock_data['volume'].rolling(window=20).mean()
     indicators['volume_20'] = volume_20
 
     # 使用Calculator.indicator計算RSI(相對強弱指標）、SMA（簡單移動平均）和EMA（指數移動平均）
@@ -67,6 +67,8 @@ def calculate_indicators(stock_data):
         **rsi_data,
         **sma_data,
         **ema_data,
+        "volume_5": volume_5,
+        "volume_20": volume_20,
         "macd": macd,
         "macdsignal": macdsignal,
         "macdhist": macdhist,
