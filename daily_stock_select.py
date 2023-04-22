@@ -37,31 +37,43 @@ def calculate_indicators(stock_data):
 
     # 將股票數據轉換為 Pandas DataFrame
     stock_data = pd.DataFrame(stock_data)
+    
+    # Set the date column as the index and convert it to datetime format
+    stock_data['date'] = pd.to_datetime(stock_data['date'])
+    stock_data.set_index('date', inplace=True)
 
     # 定義indicators字典
     indicators = {}
 
     # 新增：計算過去5天的平均交易量
     volume_5 = stock_data['volume'].rolling(window=5).mean()
-    indicators['volume_5'] = volume_5
+    indicators['volume_5'] = volume_5.dropna()
 
     # 新增：計算過去20天的平均交易量
     volume_20 = stock_data['volume'].rolling(window=20).mean()
-    indicators['volume_20'] = volume_20
+    indicators['volume_20'] = volume_20.dropna()
 
     # 使用Calculator.indicator計算RSI(相對強弱指標）、SMA（簡單移動平均）和EMA（指數移動平均）
     rsi_data = Calculator.indicator(stock_data, talib.RSI, rsi_periods, "rsi")
     sma_data = Calculator.indicator(stock_data, talib.SMA, sma_periods, "sma")
     ema_data = Calculator.indicator(stock_data, talib.EMA, ema_periods, "ema")
 
+    # 將計算出的RSI、SMA和EMA指標添加到indicators字典中
+    indicators.update(rsi_data)
+    indicators.update(sma_data)
+    indicators.update(ema_data)
+
     # MACD（移動平均匯差）：通常使用12日和26日的EMA進行計算，並用9日的EMA作為信號線。
     macd, macdsignal, macdhist = talib.MACD(stock_data["adjClose"], fastperiod=12, slowperiod=26, signalperiod=9)
+    macd, macdsignal, macdhist = macd.dropna(), macdsignal.dropna(), macdhist.dropna()
 
     # Bollinger Bands（布林帶）：通常使用20日的移動平均線作為中線，上下兩條線分別為中線的兩倍標準差。
     bb_upper, bb_middle, bb_lower = talib.BBANDS(stock_data["adjClose"], timeperiod=20)
+    bb_upper, bb_middle, bb_lower = bb_upper.dropna(), bb_middle.dropna(), bb_lower.dropna()
 
     # OBV（能量潮指標）：通過將股價上漲的交易量加總，股價下跌的交易量減總，來計算股價的能量。
     obv = talib.OBV(stock_data["adjClose"], stock_data["adjVolume"])
+    obv = obv.dropna()
 
     indicators = {
         **rsi_data,
@@ -142,7 +154,7 @@ def main():
         {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
         for stock in top_N_stocks
     ]
-    print(json.dumps(simplified_top_N_stocks, indent=2))
+    # print(json.dumps(simplified_top_N_stocks, indent=2))
     # print(top_N_stocks_json) #完整版
 
 if __name__ == "__main__":
