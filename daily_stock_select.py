@@ -154,7 +154,7 @@ def main():
         {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
         for stock in top_N_stocks
     ]
-    # print(json.dumps(simplified_top_N_stocks, indent=2))
+    print(json.dumps(simplified_top_N_stocks, indent=2))
     # print(top_N_stocks_json) #完整版
 
 if __name__ == "__main__":
