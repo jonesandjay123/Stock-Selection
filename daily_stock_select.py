@@ -38,6 +38,17 @@ def calculate_indicators(stock_data):
     # 將股票數據轉換為 Pandas DataFrame
     stock_data = pd.DataFrame(stock_data)
 
+    # 定義indicators字典
+    indicators = {}
+
+    # 新增：計算過去5天的平均交易量
+    volume_5 = stock_data['Volume'].rolling(window=5).mean()
+    indicators['volume_5'] = volume_5
+
+    # 新增：計算過去20天的平均交易量
+    volume_20 = stock_data['Volume'].rolling(window=20).mean()
+    indicators['volume_20'] = volume_20
+
     # 使用Calculator.indicator計算RSI(相對強弱指標）、SMA（簡單移動平均）和EMA（指數移動平均）
     rsi_data = Calculator.indicator(stock_data, talib.RSI, rsi_periods, "rsi")
     sma_data = Calculator.indicator(stock_data, talib.SMA, sma_periods, "sma")
@@ -125,20 +136,20 @@ def main():
     top_N_stocks_json = json.dumps(top_N_stocks, indent=2) # 將結果轉為JSON格式
 
     # 輸出結果
-    # simplified_top_N_stocks = [
-    #     {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
-    #     for stock in top_N_stocks
-    # ]
-    # print(json.dumps(simplified_top_N_stocks, indent=2))
-    print(top_N_stocks_json) #完整版
+    simplified_top_N_stocks = [
+        {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
+        for stock in top_N_stocks
+    ]
+    print(json.dumps(simplified_top_N_stocks, indent=2))
+    # print(top_N_stocks_json) #完整版
 
 if __name__ == "__main__":
     # https://api.tiingo.com/documentation/end-of-day
     API_KEY = Helper.read_access_token('access_token.txt')
     # 可根據需要自定義股票清單
-    # stock_list = Helper.load_stock_list('voo_stock_list.txt')[:50] # 讀取整個voo_stock_list.txt中的200支股票
+    stock_list = Helper.load_stock_list('voo_stock_list.txt')[:80] # 讀取整個voo_stock_list.txt中的200支股票
     # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
-    stock_list = ['PM', 'AMZN', 'XOM', 'JNJ', 'HD']
+    # stock_list = ['PM', 'AMZN', 'XOM', 'JNJ', 'HD']
     # stock_list = ['AAPL', 'META', 'TSLA']
 
     N = 20  # 挑選前N名最直得投資的股票

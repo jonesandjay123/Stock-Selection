@@ -35,6 +35,20 @@ class Calculator:
             score = 0
             indicators = stock_data['indicators']
 
+            # 計算近期（5天）和長期（20天）平均交易量
+            volume_5 = indicators['volume_5'][-1]
+            volume_20 = indicators['volume_20'][-1]
+            volume_ratio = volume_5 / volume_20
+
+            # 根據近期與長期平均交易量的比例，更新評分
+            if volume_ratio > 1.5:
+                score += 1
+
+            # 檢查交易量突破
+            recent_volume = stock_data['latest_date_data']['volume']
+            if recent_volume > volume_20 * 1.5:
+                score += 1
+
             # RSI
             rsi_5 = indicators['rsi_5'][-1]
             if rsi_5 < 30:
