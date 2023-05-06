@@ -1,13 +1,16 @@
 import os
 import sys
 import tkinter as tk
+import os.path
 from tkinter import scrolledtext
 from datetime import datetime
 
 def create_folder_and_file():
     console.delete(1.0, tk.END)  # 清空訊息欄
 
-    access_token_file = "access_token.txt"
+    # 獲取當前exe所在的目錄
+    exe_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    access_token_file = os.path.join(exe_dir, "access_token.txt")
     if os.path.exists(access_token_file):
         with open(access_token_file, "r") as f:
             api_key_entry.delete(0, tk.END)
