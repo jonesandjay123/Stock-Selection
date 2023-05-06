@@ -5,6 +5,7 @@ from tkinter import scrolledtext
 from datetime import datetime
 
 def create_folder_and_file():
+    console.delete(1.0, tk.END)  # 清空訊息欄
     api_key = api_key_entry.get()
 
     if not api_key:
@@ -25,7 +26,6 @@ def create_folder_and_file():
     console_output(f"API Key: {api_key}")
 
 def console_output(message):
-    console.delete(1.0, tk.END)  # 清空訊息欄
     console.insert(tk.END, f"{message}\n")
     console.see(tk.END)
 
