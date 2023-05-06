@@ -6,6 +6,13 @@ from datetime import datetime
 
 def create_folder_and_file():
     console.delete(1.0, tk.END)  # 清空訊息欄
+
+    access_token_file = "access_token.txt"
+    if os.path.exists(access_token_file):
+        with open(access_token_file, "r") as f:
+            api_key_entry.delete(0, tk.END)
+            api_key_entry.insert(0, f.read())
+
     api_key = api_key_entry.get()
 
     if not api_key:
