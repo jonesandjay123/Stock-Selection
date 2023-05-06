@@ -1,41 +1,48 @@
 import os
-import datetime
+import sys
 import tkinter as tk
 from tkinter import scrolledtext
+from datetime import datetime
 
 def create_folder_and_file():
-    today = datetime.date.today()
-    folder_name = f"{today}_csv"
+    api_key = api_key_entry.get()
 
+    if not api_key:
+        console_output("API Key cannot be empty.")
+        return
+
+    today = datetime.now().strftime('%Y-%m-%d')
+    folder_name = f"{today}_csv"
+    
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
-
-        file_path = os.path.join(folder_name, "test.csv")
-        with open(file_path, "w") as file:
-            file.write("This is a test file.\n")
-        output_message(f"Folder '{folder_name}' created and 'test.csv' added.")
+        with open(os.path.join(folder_name, "test.csv"), "w") as f:
+            f.write("This is a test.")
+        console_output(f"Created folder '{folder_name}' and file 'test.csv'.")
     else:
-        output_message(f"The folder '{folder_name}' already exists. No further action is needed.")
+        console_output(f"The folder '{folder_name}' already exists. No further action is needed.")
+    
+    console_output(f"API Key: {api_key}")
 
-def output_message(message):
-    text_area.insert(tk.END, f"{message}\n")
-    text_area.see(tk.END)
+def console_output(message):
+    console.delete(1.0, tk.END)  # 清空訊息欄
+    console.insert(tk.END, f"{message}\n")
+    console.see(tk.END)
 
-def main():
-    global text_area
-    root = tk.Tk()
-    root.title("Test UI")
+app = tk.Tk()
+app.title("Test UI")
 
-    frame = tk.Frame(root)
-    frame.pack(padx=10, pady=10)
+api_key_label = tk.Label(app, text="API Key:")
+api_key_label.pack()
+api_key_entry = tk.Entry(app)
+api_key_entry.pack()
 
-    button = tk.Button(frame, text="Create Folder and File", command=create_folder_and_file)
-    button.pack(padx=10, pady=10)
+create_button = tk.Button(app, text="Create Folder and File", command=create_folder_and_file)
+create_button.pack()
 
-    text_area = scrolledtext.ScrolledText(frame, wrap=tk.WORD, width=40, height=10)
-    text_area.pack(padx=10, pady=10)
+console_label = tk.Label(app, text="Console Output:")
+console_label.pack()
+console = scrolledtext.ScrolledText(app, wrap=tk.WORD, width=40, height=10)
+console.pack()
 
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+app.mainloop()
