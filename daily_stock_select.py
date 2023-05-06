@@ -155,12 +155,17 @@ def create_folder_and_file():
     console.insert(tk.END, "正在執行股票分析...\n")
     try:
         main()
-        console.insert(tk.END, "股票分析完成。\n")
+        console.insert(tk.END, "\n\n股票分析完成。\n")
     except Exception as e:
         console.insert(tk.END, f"出錯了: {e}\n")
 
-def save_top_N_stocks_to_csv(top_N_stocks, filename="top_N_stocks.csv"):
-    with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
+def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    filename = f"{date_string}_top_N_result.csv"
+    file_path = os.path.join(folder_name, filename)
+    
+    with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["ranking", "symbol", "score", "average_close", "average_volume", "recommand_buy_price", "recommand_sell_price"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -180,9 +185,14 @@ def main():
         {"symbol": stock["symbol"], "score": stock["score"], "ranking": stock["ranking"]}
         for stock in top_N_stocks
     ]
-    print(json.dumps(simplified_top_N_stocks, indent=2))
+    result_string = json.dumps(simplified_top_N_stocks, indent=2)
+    print(result_string)  # 在終端顯示結果
+    console.delete(1.0, tk.END)  # 清空Text組件的內容
+    console.insert(tk.END, result_string)  # 將結果插入Text組件
+
     # print(top_N_stocks_json) #完整版
-    save_top_N_stocks_to_csv(top_N_stocks)  # 保存分析結果到CSV檔案
+    today_string = datetime.date.today().strftime('%Y-%m-%d')
+    save_top_N_stocks_to_csv(top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
 
 
 if __name__ == "__main__":
@@ -208,16 +218,16 @@ if __name__ == "__main__":
     # 創建主窗口
     root = tk.Tk()
     root.title("Daily Stock Selector")
-    root.geometry("800x600")
+    root.geometry("450x500")
 
     # 創建和配置各個控件
     api_key_label = ttk.Label(root, text="API Key:")
     api_key_entry = ttk.Entry(root)
     api_key_entry.insert(0, API_KEY)  # 使用預設的API_KEY填充
-    create_button = ttk.Button(root, text="Create Folder and File", command=create_folder_and_file)
+    create_button = ttk.Button(root, text="下個交易日最值得投資的前N檔股票", command=create_folder_and_file)
 
     console_label = ttk.Label(root, text="Console:")
-    console = tk.Text(root, height=20, width=100)
+    console = tk.Text(root, height=30, width=40)
 
     # 使用 grid() 方法定位控件
     api_key_label.grid(column=0, row=0, sticky=tk.W)
