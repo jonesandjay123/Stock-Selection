@@ -1,3 +1,4 @@
+import csv
 import json
 import datetime
 import os
@@ -7,6 +8,10 @@ import talib
 from indicators.calculate import Calculator
 from tool.helper import Helper  
 from tqdm import tqdm
+# 新增以下代碼以導入所需的GUI庫
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
 
 def get_stock_data(stock_symbol, start_date, end_date, cache_folder_name):
     # 儲存原始股票代號
@@ -143,6 +148,27 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
 
     return top_N_stocks
 
+def create_folder_and_file():
+    global API_KEY
+    API_KEY = api_key_entry.get()
+    console.delete(1.0, tk.END)
+    console.insert(tk.END, "正在執行股票分析...\n")
+    try:
+        main()
+        console.insert(tk.END, "股票分析完成。\n")
+    except Exception as e:
+        console.insert(tk.END, f"出錯了: {e}\n")
+
+def save_top_N_stocks_to_csv(top_N_stocks, filename="top_N_stocks.csv"):
+    with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ["ranking", "symbol", "score", "average_close", "average_volume", "recommand_buy_price", "recommand_sell_price"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for stock in top_N_stocks:
+            simplified_stock_data = {key: stock[key] for key in fieldnames}
+            writer.writerow(simplified_stock_data)
+
 def main():
     Helper.clean_old_csv_folders() # 清理舊的CSV資料夾
     cache_folder_name = Helper.prepare_cache_folder() # 準備緩存資料夾
@@ -156,6 +182,8 @@ def main():
     ]
     print(json.dumps(simplified_top_N_stocks, indent=2))
     # print(top_N_stocks_json) #完整版
+    save_top_N_stocks_to_csv(top_N_stocks)  # 保存分析結果到CSV檔案
+
 
 if __name__ == "__main__":
     # https://api.tiingo.com/documentation/end-of-day
@@ -175,4 +203,28 @@ if __name__ == "__main__":
     rsi_periods = Helper.filter_periods(rsi_periods, data_interval_days)
     sma_periods = Helper.filter_periods(sma_periods, data_interval_days)
     ema_periods = Helper.filter_periods(ema_periods, data_interval_days)
-    main()
+    # main()
+
+    # 創建主窗口
+    root = tk.Tk()
+    root.title("Daily Stock Selector")
+    root.geometry("800x600")
+
+    # 創建和配置各個控件
+    api_key_label = ttk.Label(root, text="API Key:")
+    api_key_entry = ttk.Entry(root)
+    api_key_entry.insert(0, API_KEY)  # 使用預設的API_KEY填充
+    create_button = ttk.Button(root, text="Create Folder and File", command=create_folder_and_file)
+
+    console_label = ttk.Label(root, text="Console:")
+    console = tk.Text(root, height=20, width=100)
+
+    # 使用 grid() 方法定位控件
+    api_key_label.grid(column=0, row=0, sticky=tk.W)
+    api_key_entry.grid(column=1, row=0, sticky=tk.W)
+    create_button.grid(column=1, row=1, sticky=tk.W)
+    console_label.grid(column=0, row=2, sticky=tk.W)
+    console.grid(column=1, row=2, sticky=tk.W)
+
+    # 執行主循環
+    root.mainloop()
