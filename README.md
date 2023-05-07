@@ -42,3 +42,8 @@
    ```shell
    conda deactivate
    ```
+
+to pack into exe file:
+```shell
+pyinstaller --onefile --noconsole --additional-hooks-dir=hooks daily_stock_select.py
+```
