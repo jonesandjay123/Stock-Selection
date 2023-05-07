@@ -233,26 +233,26 @@ if __name__ == "__main__":
     root.geometry("450x500")
 
     # 在主界面部分新增
-    progress_label = ttk.Label(root, text="Progress:")
-    progress_bar = ttk.Progressbar(root, orient="horizontal", length=200, mode="determinate")
-    progress_label.grid(column=0, row=3, sticky=tk.W)
-    progress_bar.grid(column=1, row=3, sticky=tk.W)
-
-    # 創建和配置各個控件
     api_key_label = ttk.Label(root, text="API Key:")
     api_key_entry = ttk.Entry(root)
     api_key_entry.insert(0, API_KEY)  # 使用預設的API_KEY填充
     create_button = ttk.Button(root, text="下個交易日最值得投資的前N檔股票", command=create_folder_and_file)
 
-    console_label = ttk.Label(root, text="Console:")
-    console = tk.Text(root, height=30, width=40)
-
-    # 使用 grid() 方法定位控件
     api_key_label.grid(column=0, row=0, sticky=tk.W)
     api_key_entry.grid(column=1, row=0, sticky=tk.W)
     create_button.grid(column=1, row=1, sticky=tk.W)
-    console_label.grid(column=0, row=2, sticky=tk.W)
-    console.grid(column=1, row=2, sticky=tk.W)
+
+    # 將進度條移動到按鈕下方
+    progress_label = ttk.Label(root, text="Progress:")
+    progress_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
+    progress_label.grid(column=0, row=2, sticky=tk.W)
+    progress_bar.grid(column=1, row=2, sticky=tk.W)
+
+    # 更新控制台位置
+    console_label = ttk.Label(root, text="Console:")
+    console = tk.Text(root, height=30, width=40)
+    console_label.grid(column=0, row=3, sticky=tk.W)
+    console.grid(column=1, row=3, sticky=tk.W)
 
     # 執行主循環
     root.mainloop()
