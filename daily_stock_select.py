@@ -160,6 +160,9 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
 def create_folder_and_file():
     global API_KEY
     API_KEY = api_key_entry.get()
+    if API_KEY == "":
+        console.insert(tk.END, "access_token.txt不可為空!\n")
+        return 
     console.delete(1.0, tk.END)
     console.insert(tk.END, "正在執行股票分析...\n")
     try:
