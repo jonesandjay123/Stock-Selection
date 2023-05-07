@@ -204,7 +204,7 @@ def main():
 
     # print(top_N_stocks_json) #完整版
     today_string = datetime.date.today().strftime('%Y-%m-%d')
-    # save_top_N_stocks_to_csv(top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
+    save_top_N_stocks_to_csv(top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
 
 
 if __name__ == "__main__":
