@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import requests
 import talib
+import time
 from indicators.calculate import Calculator
 from tool.helper import Helper  
 from tqdm import tqdm
@@ -103,7 +104,11 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
 
     stock_results = []
 
-    for stock_symbol in tqdm(stock_list, desc="Processing stocks"):
+    stock_count = len(stock_list)
+    progress_bar["maximum"] = stock_count
+    progress_bar["value"] = 0
+
+    for stock_symbol in stock_list:
         try:
             # 獲取股票歷史數據
             stock_data, indicators, latest_date_data = get_stock_data(stock_symbol, start_date, end_date, cache_folder_name)
@@ -129,6 +134,10 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
         except Exception as e:
             print(f"Error processing stock {stock_symbol}: {e}")
             continue
+        finally:
+            progress_bar["value"] += 1
+            progress_bar.update()
+            time.sleep(0.1)
 
         # 計算股票分數
     stock_scores = Calculator.calculate_stock_scores(stock_results)
@@ -222,6 +231,12 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Daily Stock Selector")
     root.geometry("450x500")
+
+    # 在主界面部分新增
+    progress_label = ttk.Label(root, text="Progress:")
+    progress_bar = ttk.Progressbar(root, orient="horizontal", length=200, mode="determinate")
+    progress_label.grid(column=0, row=3, sticky=tk.W)
+    progress_bar.grid(column=1, row=3, sticky=tk.W)
 
     # 創建和配置各個控件
     api_key_label = ttk.Label(root, text="API Key:")
