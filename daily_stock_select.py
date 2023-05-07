@@ -230,7 +230,7 @@ if __name__ == "__main__":
     # 創建主窗口
     root = tk.Tk()
     root.title("Daily Stock Selector")
-    root.geometry("450x500")
+    root.geometry("420x500")
 
     # 在主界面部分新增
     api_key_label = ttk.Label(root, text="API Key:")
@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
     # 更新控制台位置
     console_label = ttk.Label(root, text="Console:")
-    console = tk.Text(root, height=30, width=40)
+    console = tk.Text(root, height=25, width=40)
     console_label.grid(column=0, row=3, sticky=tk.W)
     console.grid(column=1, row=3, sticky=tk.W)
 
