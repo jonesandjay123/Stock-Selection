@@ -165,14 +165,17 @@ def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
     filename = f"{date_string}_top_N_result.csv"
     file_path = os.path.join(folder_name, filename)
     
-    with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ["ranking", "symbol", "score", "average_close", "average_volume", "recommand_buy_price", "recommand_sell_price"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    try:
+        with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ["ranking", "symbol", "score", "average_close", "average_volume", "recommand_buy_price", "recommand_sell_price"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        writer.writeheader()
-        for stock in top_N_stocks:
-            simplified_stock_data = {key: stock[key] for key in fieldnames}
-            writer.writerow(simplified_stock_data)
+            writer.writeheader()
+            for stock in top_N_stocks:
+                simplified_stock_data = {key: stock[key] for key in fieldnames}
+                writer.writerow(simplified_stock_data)
+    except Exception as e:
+        print(f"Error opening file: {e}")
 
 def main():
     Helper.clean_old_csv_folders() # 清理舊的CSV資料夾
