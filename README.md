@@ -52,5 +52,6 @@ pyinstaller --onefile --noconsole --additional-hooks-dir=hooks daily_stock_selec
 to pack into .app file that can be run on mac:
 
 ```shell
-pyinstaller --onefile --windowed --additional-hooks-dir=hooks --name StockSelection --icon=myicon.icns daily_stock_select.py
+pyinstaller --onefile --windowed --additional-hooks-dir=hooks --name StockSelection daily_stock_select.py
+
 ```
