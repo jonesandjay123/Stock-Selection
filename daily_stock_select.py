@@ -125,6 +125,12 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
             average_close = stock_df['adjClose'].mean()  # 計算平均收盤價
             average_volume = stock_df['adjVolume'].mean()  # 計算平均交易量
 
+            # 計算最近7天與30天的平均收盤價和交易量
+            average_close_7days = stock_df['adjClose'][-7:].mean()
+            average_volume_7days = stock_df['adjVolume'][-7:].mean()
+            average_close_30days = stock_df['adjClose'][-30:].mean()
+            average_volume_30days = stock_df['adjVolume'][-30:].mean()
+
             # 計算買入價與賣出價
             recommand_buy_price = average_close * 0.9
             recommand_sell_price = average_close * 1.1
@@ -133,8 +139,12 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
             stock_results.append({
                 'symbol': stock_symbol,
                 'latest_date_data': latest_date_data,
-                'average_close': average_close,
-                'average_volume': average_volume,
+                'average_close_7days': average_close_7days,
+                'average_close_30days': average_close_30days,
+                'average_close_all': average_close,
+                'average_volume_7days': average_volume_7days,
+                'average_volume_30days': average_volume_30days,
+                'average_volume_all': average_volume,
                 'recommand_buy_price': recommand_buy_price,
                 'recommand_sell_price': recommand_sell_price,
                 # 只顯示最近indicator_display_amount天的數據
@@ -191,8 +201,9 @@ def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
 
     try:
         with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ["ranking", "symbol", "score", "average_close",
-                          "average_volume", "recommand_buy_price", "recommand_sell_price"]
+            fieldnames = ["ranking", "symbol", "score", "average_close_7days", "average_close_30days", "average_close_all",
+                          "average_volume_7days", "average_volume_30days", "average_volume_all",
+                          "recommand_buy_price", "recommand_sell_price"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
