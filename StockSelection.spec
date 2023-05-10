@@ -41,11 +41,10 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['myicon.icns'],
 )
 app = BUNDLE(
     exe,
     name='StockSelection.app',
-    icon='myicon.icns',
+    icon=None,
     bundle_identifier=None,
 )
