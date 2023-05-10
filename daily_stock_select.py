@@ -288,5 +288,9 @@ if __name__ == "__main__":
     console_label.grid(column=0, row=3, sticky=tk.W)
     console.grid(column=1, row=3, sticky=tk.W)
 
+    # 更新版本號
+    version_label = tk.Label(root, text="版本號: 1.0.1")
+    version_label.grid(row=10, column=1, sticky=tk.W)
+
     # 執行主循環
     root.mainloop()
