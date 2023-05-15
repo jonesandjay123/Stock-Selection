@@ -266,7 +266,6 @@ if __name__ == "__main__":
     stock_order = {stock: index for index, stock in enumerate(stock_list)}
 
     N = 20  # 挑選前N名最直得投資的股票
-    indicator_display_amount = 5  # 顯示最近幾天的指標數據
     rsi_periods = [5, 10, 14]  # 宣告RSI計算期限種類
     sma_periods = [5, 10, 20, 50, 100]  # 宣告SMA計算期限種類
     ema_periods = [5, 10, 20, 50, 100]  # 宣告EMA計算期限種類
@@ -285,28 +284,39 @@ if __name__ == "__main__":
     api_key_label = ttk.Label(root, text="API Key:")
     api_key_entry = ttk.Entry(root)
     api_key_entry.insert(0, API_KEY)  # 使用預設的API_KEY填充
+
+    # 新增讓使用者選擇天數的 Spinbox
+    indicator_display_amount_var = tk.IntVar(value=5)  # 顯示最近幾天的指標數據，預設為5天
+    indicator_display_amount = indicator_display_amount_var.get()
+    indicator_label = ttk.Label(root, text="指標天數範圍: ")
+    indicator_spinbox = ttk.Spinbox(
+        root, from_=1, to=7, width=5, textvariable=indicator_display_amount_var)
+    indicator_spinbox.set(5)  # 預設值為5
+
     create_button = ttk.Button(
         root, text="下個交易日最值得投資的前N檔股票", command=create_folder_and_file)
 
     api_key_label.grid(column=0, row=0, sticky=tk.W)
     api_key_entry.grid(column=1, row=0, sticky=tk.W)
-    create_button.grid(column=1, row=1, sticky=tk.W)
+    indicator_label.grid(column=0, row=1, sticky=tk.W)
+    indicator_spinbox.grid(column=1, row=1, sticky=tk.W)
+    create_button.grid(column=1, row=2, sticky=tk.W)
 
     # 將進度條移動到按鈕下方
     progress_label = ttk.Label(root, text="Progress:")
     progress_bar = ttk.Progressbar(
         root, orient="horizontal", length=300, mode="determinate")
-    progress_label.grid(column=0, row=2, sticky=tk.W)
-    progress_bar.grid(column=1, row=2, sticky=tk.W)
+    progress_label.grid(column=0, row=3, sticky=tk.W)
+    progress_bar.grid(column=1, row=3, sticky=tk.W)
 
     # 更新控制台位置
     console_label = ttk.Label(root, text="Console:")
     console = tk.Text(root, height=25, width=40)
-    console_label.grid(column=0, row=3, sticky=tk.W)
-    console.grid(column=1, row=3, sticky=tk.W)
+    console_label.grid(column=0, row=4, sticky=tk.W)
+    console.grid(column=1, row=4, sticky=tk.W)
 
     # 更新版本號
-    version_label = tk.Label(root, text="版本號: 1.0.1")
+    version_label = tk.Label(root, text="版本號: 1.0.2")
     version_label.grid(row=10, column=1, sticky=tk.W)
 
     # 執行主循環
