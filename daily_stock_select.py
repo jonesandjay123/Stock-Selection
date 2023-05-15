@@ -194,25 +194,6 @@ def create_folder_and_file():
         console.insert(tk.END, f"出錯了: {e}\n")
 
 
-# def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
-#     if not os.path.exists(folder_name):
-#         os.makedirs(folder_name)
-#     filename = f"{date_string}_top_N_result.csv"
-#     file_path = os.path.join(folder_name, filename)
-
-#     try:
-#         with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
-#             fieldnames = ["ranking", "symbol", "score", "average_close_7days", "average_close_30days", "average_close_all",
-#                           "average_volume_7days", "average_volume_30days", "average_volume_all",
-#                           "recommand_buy_price", "recommand_sell_price"]
-#             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-#             writer.writeheader()
-#             for stock in top_N_stocks:
-#                 simplified_stock_data = {key: stock[key] for key in fieldnames}
-#                 writer.writerow(simplified_stock_data)
-#     except Exception as e:
-#         print(f"Error opening file: {e}")
 def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
