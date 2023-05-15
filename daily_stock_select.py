@@ -194,6 +194,25 @@ def create_folder_and_file():
         console.insert(tk.END, f"出錯了: {e}\n")
 
 
+# def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
+#     if not os.path.exists(folder_name):
+#         os.makedirs(folder_name)
+#     filename = f"{date_string}_top_N_result.csv"
+#     file_path = os.path.join(folder_name, filename)
+
+#     try:
+#         with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
+#             fieldnames = ["ranking", "symbol", "score", "average_close_7days", "average_close_30days", "average_close_all",
+#                           "average_volume_7days", "average_volume_30days", "average_volume_all",
+#                           "recommand_buy_price", "recommand_sell_price"]
+#             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+#             writer.writeheader()
+#             for stock in top_N_stocks:
+#                 simplified_stock_data = {key: stock[key] for key in fieldnames}
+#                 writer.writerow(simplified_stock_data)
+#     except Exception as e:
+#         print(f"Error opening file: {e}")
 def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
@@ -202,15 +221,30 @@ def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
 
     try:
         with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
+            # Prepare the headers.
             fieldnames = ["ranking", "symbol", "score", "average_close_7days", "average_close_30days", "average_close_all",
                           "average_volume_7days", "average_volume_30days", "average_volume_all",
                           "recommand_buy_price", "recommand_sell_price"]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            # Add the indicator headers.
+            # Get the names of the indicators.
+            indicator_names = top_N_stocks[0]['indicators'].keys()
+            for indicator_name in indicator_names:
+                for i in range(1, 6):
+                    fieldnames.append(f'{indicator_name}_day{i}')
 
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
+
             for stock in top_N_stocks:
-                simplified_stock_data = {key: stock[key] for key in fieldnames}
-                writer.writerow(simplified_stock_data)
+                # Prepare the data to be written to the CSV file.
+                stock_data = {key: stock[key]
+                              for key in fieldnames if key in stock}
+                for indicator_name in indicator_names:
+                    for i in range(1, 6):
+                        fieldname = f'{indicator_name}_day{i}'
+                        stock_data[fieldname] = stock['indicators'][indicator_name][i - 1]
+
+                writer.writerow(stock_data)
     except Exception as e:
         print(f"Error opening file: {e}")
 
@@ -229,11 +263,11 @@ def main():
         for stock in top_N_stocks
     ]
     result_string = json.dumps(simplified_top_N_stocks, indent=2)
-    print(result_string)  # 在終端顯示結果
+    # print(result_string)  # 在終端顯示結果
     console.delete(1.0, tk.END)  # 清空Text組件的內容
     console.insert(tk.END, result_string)  # 將結果插入Text組件
 
-    # print(top_N_stocks_json)  # 完整版
+    print(top_N_stocks_json)  # 完整版
     today_string = datetime.date.today().strftime('%Y-%m-%d')
     save_top_N_stocks_to_csv(
         top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
