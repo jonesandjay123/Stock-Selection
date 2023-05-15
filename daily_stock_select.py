@@ -159,7 +159,8 @@ def get_top_N_stocks(stock_list, N, indicator_display_amount, cache_folder_name)
             time.sleep(0.1)
 
         # 計算股票分數
-    stock_scores = Calculator.calculate_stock_scores(stock_results)
+    stock_scores = Calculator.calculate_stock_scores(
+        stock_results, stock_order)
     stock_scores_dict = {stock['symbol']: stock['score']
                          for stock in stock_scores}
 
@@ -232,7 +233,7 @@ def main():
     console.delete(1.0, tk.END)  # 清空Text組件的內容
     console.insert(tk.END, result_string)  # 將結果插入Text組件
 
-    # print(top_N_stocks_json) #完整版
+    # print(top_N_stocks_json)  # 完整版
     today_string = datetime.date.today().strftime('%Y-%m-%d')
     save_top_N_stocks_to_csv(
         top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
@@ -247,6 +248,7 @@ if __name__ == "__main__":
     # stock_list = ['AAPL', 'ADBE', 'AMC', 'AMZN', 'META', 'MSFT', 'NVDA', 'TSLA']
     # stock_list = ['PM', 'AMZN', 'XOM', 'JNJ', 'HD']
     # stock_list = ['AAPL', 'META', 'TSLA']
+    stock_order = {stock: index for index, stock in enumerate(stock_list)}
 
     N = 20  # 挑選前N名最直得投資的股票
     indicator_display_amount = 5  # 顯示最近幾天的指標數據

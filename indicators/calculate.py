@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from .order_dict import order_dict
+
 
 class Calculator:
     @staticmethod
@@ -11,24 +11,27 @@ class Calculator:
         results = {}
         for period in periods:
             name = f'{prefix}_{period}'
-            indicator = indicator_func(stock_data['adjClose'], timeperiod=period)
+            indicator = indicator_func(
+                stock_data['adjClose'], timeperiod=period)
             results[name] = indicator
 
         return results
-    
+
     @staticmethod
-    def MACD(df, n_fast, n_slow, n_macd): # n_fast = 12, n_slow = 26, n_macd = 9
-        EMAfast = df['Adj Close'].ewm(span=n_fast, min_periods=n_slow - 1).mean()
-        EMAslow = df['Adj Close'].ewm(span=n_slow, min_periods=n_slow - 1).mean()
+    def MACD(df, n_fast, n_slow, n_macd):  # n_fast = 12, n_slow = 26, n_macd = 9
+        EMAfast = df['Adj Close'].ewm(
+            span=n_fast, min_periods=n_slow - 1).mean()
+        EMAslow = df['Adj Close'].ewm(
+            span=n_slow, min_periods=n_slow - 1).mean()
         MACD = EMAfast - EMAslow
         MACD_signal = MACD.ewm(span=n_macd, min_periods=n_macd-1).mean()
         df['MACD'] = MACD
         df['MACD_signal'] = MACD_signal
         df['MACD_hist'] = MACD - MACD_signal
         return df
-    
+
     @staticmethod
-    def calculate_stock_scores(stock_data_list):
+    def calculate_stock_scores(stock_data_list, stock_order):
         stock_scores = []
 
         for stock_data in stock_data_list:
@@ -86,7 +89,8 @@ class Calculator:
                 'score': score
             })
 
-        # 根據分數排序，分數相同的話，根據 order_dict 的順序排序
-        stock_scores.sort(key=lambda x: (x['score'], order_dict[x['symbol']]), reverse=True)
+        # 根據分數排序，分數相同的話，根據 stock_order 的順序排序
+        stock_scores.sort(key=lambda x: (
+            x['score'], stock_order[x['symbol']]), reverse=True)
 
         return stock_scores
