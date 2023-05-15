@@ -194,7 +194,7 @@ def create_folder_and_file():
         console.insert(tk.END, f"出錯了: {e}\n")
 
 
-def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
+def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string, indicator_display_amount):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
     filename = f"{date_string}_top_N_result.csv"
@@ -210,7 +210,7 @@ def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
             # Get the names of the indicators.
             indicator_names = top_N_stocks[0]['indicators'].keys()
             for indicator_name in indicator_names:
-                for i in range(1, 6):
+                for i in range(1, indicator_display_amount+1):
                     fieldnames.append(f'{indicator_name}_day{i}')
 
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -221,7 +221,7 @@ def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string):
                 stock_data = {key: stock[key]
                               for key in fieldnames if key in stock}
                 for indicator_name in indicator_names:
-                    for i in range(1, 6):
+                    for i in range(1, indicator_display_amount+1):
                         fieldname = f'{indicator_name}_day{i}'
                         stock_data[fieldname] = stock['indicators'][indicator_name][i - 1]
 
@@ -251,7 +251,7 @@ def main():
     print(top_N_stocks_json)  # 完整版
     today_string = datetime.date.today().strftime('%Y-%m-%d')
     save_top_N_stocks_to_csv(
-        top_N_stocks, cache_folder_name, today_string)  # 保存分析結果到指定的CSV檔案和資料夾
+        top_N_stocks, cache_folder_name, today_string, indicator_display_amount)  # 保存分析結果到指定的CSV檔案和資料夾
 
 
 if __name__ == "__main__":
@@ -285,13 +285,22 @@ if __name__ == "__main__":
     api_key_entry = ttk.Entry(root)
     api_key_entry.insert(0, API_KEY)  # 使用預設的API_KEY填充
 
-    # 新增讓使用者選擇天數的 Spinbox
-    indicator_display_amount_var = tk.IntVar(value=5)  # 顯示最近幾天的指標數據，預設為5天
-    indicator_display_amount = indicator_display_amount_var.get()
+    indicator_display_amount = 5  # 設定初始值，顯示最近幾天的指標數據，預設為5天
+    indicator_display_amount_entry = tk.IntVar()
+    indicator_display_amount_entry.set(indicator_display_amount)
+
+    # 在這裡，我們更新了Spinbox來使用我們的新變量
+    indicator_spinbox = tk.Spinbox(
+        root, from_=1, to=7, textvariable=indicator_display_amount_entry)
+
+    def on_indicator_display_amount_change(*args):
+        global indicator_display_amount
+        indicator_display_amount = int(indicator_display_amount_entry.get())
+
+    indicator_display_amount_entry.trace(
+        "w", on_indicator_display_amount_change)
+
     indicator_label = ttk.Label(root, text="指標天數範圍: ")
-    indicator_spinbox = ttk.Spinbox(
-        root, from_=1, to=7, width=5, textvariable=indicator_display_amount_var)
-    indicator_spinbox.set(5)  # 預設值為5
 
     create_button = ttk.Button(
         root, text="下個交易日最值得投資的前N檔股票", command=create_folder_and_file)
