@@ -339,7 +339,7 @@ if __name__ == "__main__":
     console.grid(column=1, row=4, sticky=tk.W)
 
     # 更新版本號
-    version_label = tk.Label(root, text="版本號: 1.0.2")
+    version_label = tk.Label(root, text="版本號: 1.0.3")
     version_label.grid(column=1, row=10, sticky=tk.W)
 
     sync_hist_button = ttk.Button(
