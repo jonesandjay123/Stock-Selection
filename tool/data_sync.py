@@ -1,4 +1,3 @@
-
 import glob
 import os
 from tool.helper import Helper
@@ -25,27 +24,25 @@ class DataSync:
 
         sync_hist_path = os.path.join(current_dir, 'SyncHist.csv')
 
-        # 檢查是否存在SyncHist.csv檔案
+        # 刪除已存在的 SyncHist.csv
         if os.path.isfile(sync_hist_path):
-            # 讀取檔案並計算行數
-            df = pd.read_csv(sync_hist_path)
-            print(f"SyncHist.csv 檔案裡有 {len(df)} 行。")
-        else:
-            # 創建SyncHist.csv檔案並寫入csv文件名稱
-            rank_dict = {}
-            score_dict = {}
-            for file in csv_files:
-                date = os.path.basename(file).split('_')[0]
-                tmp_df = pd.read_csv(file)
-                tmp_df['rank'] = tmp_df.index + 1
-                tmp_df.set_index('symbol', inplace=True)
-                rank_dict[date] = tmp_df.reindex(stock_list)['rank']
-                score_dict[date] = tmp_df.reindex(stock_list)['score']
+            os.remove(sync_hist_path)
 
-            rank_df = pd.concat(rank_dict, axis=1)
-            score_df = pd.concat(score_dict, axis=1)
-            final_df = pd.concat([score_df, rank_df], keys=[
-                                 'score', 'rank'], axis=1)
+        # 創建SyncHist.csv檔案並寫入csv文件名稱
+        rank_dict = {}
+        score_dict = {}
+        for file in csv_files:
+            date = os.path.basename(file).split('_')[0]
+            tmp_df = pd.read_csv(file)
+            tmp_df['rank'] = tmp_df.index + 1
+            tmp_df.set_index('symbol', inplace=True)
+            rank_dict[date] = tmp_df.reindex(stock_list)['rank']
+            score_dict[date] = tmp_df.reindex(stock_list)['score']
 
-            final_df.to_csv(sync_hist_path)
-            print("SyncHist.csv 已被創建，並且 csv 檔案的名稱已經寫入。")
+        rank_df = pd.concat(rank_dict, axis=1)
+        score_df = pd.concat(score_dict, axis=1)
+        final_df = pd.concat([score_df, rank_df], keys=[
+                             'score', 'rank'], axis=1)
+
+        final_df.to_csv(sync_hist_path)
+        print("SyncHist.csv 已被創建，並且 csv 檔案的名稱已經寫入。")
