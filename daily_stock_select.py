@@ -1,6 +1,7 @@
 import csv
 import json
 import datetime
+import glob
 import os
 import pandas as pd
 import requests
@@ -194,6 +195,19 @@ def create_folder_and_file():
         console.insert(tk.END, f"出錯了: {e}\n")
 
 
+def sync_hist_csv():
+    print("====button clicked====")
+    # 取得當前路徑
+    current_dir = os.getcwd()
+
+    # glob模塊可以找到符合特定規則的文件路徑名
+    csv_files = glob.glob(os.path.join(
+        current_dir, '**/*_top_N_result.csv'), recursive=True)
+
+    print(
+        f"There are {len(csv_files)} csv files named '*_top_N_result.csv' in subdirectories of the current directory.")
+
+
 def save_top_N_stocks_to_csv(top_N_stocks, folder_name, date_string, indicator_display_amount):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
@@ -326,7 +340,11 @@ if __name__ == "__main__":
 
     # 更新版本號
     version_label = tk.Label(root, text="版本號: 1.0.2")
-    version_label.grid(row=10, column=1, sticky=tk.W)
+    version_label.grid(column=1, row=10, sticky=tk.W)
+
+    sync_hist_button = ttk.Button(
+        root, text="整合歷史紀錄", command=sync_hist_csv)
+    sync_hist_button.grid(column=1, row=11, sticky='e')
 
     # 執行主循環
     root.mainloop()
